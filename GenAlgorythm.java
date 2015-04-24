@@ -1,26 +1,44 @@
+package badania;
+
+import java.awt.Dimension;
 import java.io.*;
 import java.util.*;
+
+import javax.swing.JFrame;
+
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class GenAlgorythm {
 	private int vertNum = 0;
 	private int[][] adjMatrix;
-	public void run() throws FileNotFoundException {
+	public void run(int populationQuantity, int maxGen, double mutationProbability, String path, int verNum, int edgNum) throws FileNotFoundException {
 		
-		this.genGraph(8, 12);
-		//this.getGraph("graf.txt");
+		if(path == "") {
+			this.genGraph(verNum, edgNum);
+		}
+		else{
+			this.getGraph(path);	
+		}
 		
-		Population population = new Population(4, vertNum);
+		displayAdjMatrix();
+		displayGraph(vertNum);
+		
+		Population population = new Population(populationQuantity, vertNum);
 		population.adjMatrix = adjMatrix;
 		population.sort();
 		
 		int gen = 0;
-		while(gen < 20) {
+		while(gen < maxGen) {
 			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
 			newChild1.mutate(0.1);			
 			population.add(newChild1);
 			
 			Chromosome newChild2 =  population.get(1).crossover(population.get(0));
-			newChild2.mutate(0.1);			
+			newChild2.mutate(mutationProbability);			
 			population.add(newChild2);
 			
 			population.sort();
@@ -32,6 +50,7 @@ public class GenAlgorythm {
 			
 			gen++;
 		}
+
 	}
 	
 	private void getGraph(String path) throws FileNotFoundException {
@@ -59,8 +78,7 @@ public class GenAlgorythm {
 	       int j = Integer.parseInt(edges[1]) - 1;
 	       
 	       adjMatrix[i][j] = 1;
-	       adjMatrix[j][i] = 1;
-	       	    	  
+	       adjMatrix[j][i] = 1; 	    	  
 		}
 	}
 	
@@ -74,6 +92,10 @@ public class GenAlgorythm {
 			for(int j = 0; j < verNum; j++) {									
 				adjMatrix[i][j] = 0;
 			}
+		}
+		
+		if(edgNum > (verNum * (verNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzcho≈Çki i milion krawedzi
+			edgNum = (verNum * (verNum -1))/2;  // Zreszta to i tak konieczne, bo wtedy while moglby trwac wiecznie
 		}
 			
 		while(n < edgNum) {
@@ -90,17 +112,48 @@ public class GenAlgorythm {
 			}
 			
 		}
-		 
-		 System.out.println("Macierz Sπsiedztwa: ");
-		 for(int i = 0; i < vertNum; i++) {		  
-		    	for(int j = 0; j < vertNum; j++) {
-					 System.out.print(adjMatrix[i][j] + "  ");
-				}
-		    	System.out.println();
-
-		 }
-	    	System.out.println();
-	    	System.out.println();
 	}
+	
+	private void displayAdjMatrix() {
+		System.out.println("Macierz sasiedztwa: ");
+		for(int i = 0; i < vertNum; i++) {		  
+	    	for(int j = 0; j < vertNum; j++) {
+				System.out.print(adjMatrix[i][j] + "  ");
+			}
+	    	System.out.println();
+		}
+    	System.out.println();
+    	System.out.println();
+	}
+	
+	private void displayGraph(int verNum)
+	{
+		Vertexx[] tab = new Vertexx[verNum];
+		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
+		for(int i = 0; i < verNum; i++) {
+			Vertexx v = new Vertexx(i);
+			g.addVertex(v);
+			tab[i] = v;
+		}
+		for(int i = 0; i < verNum; i++) {
+			for(int j = 0; j <= i; j++) {
+				if(adjMatrix[i][j] == 1) {
+					Edgee e = new Edgee(i, j);
+					g.addEdge(e, tab[i], tab[j]);
+				}
+			}
+		}
+		
+        Layout<Integer, String> layout = new CircleLayout(g);
+        layout.setSize(new Dimension(500,500)); 
+        BasicVisualizationServer<Integer,String> vv = new BasicVisualizationServer<Integer,String>(layout);
+        vv.setPreferredSize(new Dimension(650,650)); 
+        
+        JFrame frame = new JFrame("Graph");
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frame.getContentPane().add(vv); 
+        frame.pack();
+        frame.setVisible(true);    
+	} 
 	
 }

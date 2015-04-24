@@ -1,3 +1,5 @@
+package badania;
+
 import java.util.*;
 
 public class Population {
@@ -31,7 +33,7 @@ public class Population {
 	
 	public void print() {
 		for(int j = 0 ; j < population.size(); j++) {
-   		  	System.out.print(j + ". " + population.get(j).fitness(adjMatrix) + "  ");
+   		  	System.out.print(j+1 + ". " + population.get(j).fitness(adjMatrix) + "  ");
 	    	  for(int i = 0; i < population.get(j).size(); i++) {
 	    		  System.out.print( population.get(j).get(i) + " ");	  
 	    	  }
@@ -42,8 +44,8 @@ public class Population {
    	  	System.out.println();
 	}
 	
-	private class chromComp implements Comparator<Chromosome>{  	  
-	    @Override
+	private class chromComp implements Comparator<Chromosome>{
+		
 	    public int compare(Chromosome e1, Chromosome e2) {
 	        if( e1.fitness(adjMatrix) < e2.fitness(adjMatrix)) {
 	            return 1;

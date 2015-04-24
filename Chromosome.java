@@ -1,3 +1,4 @@
+package badania;
 import java.util.Random;
 
 public class Chromosome {
