@@ -37,7 +37,7 @@ public class Test {
 				System.out.println("Podaj sciezke:");
 				path = getString();
 				try {
-					alg.run(populationQuantity, maxGen, mutationProbability, path, 0, 0);
+					alg.run(populationQuantity, maxGen, mutationProbability, path, 0, 0,null,null);
 				} catch(FileNotFoundException e) { System.out.println("Nie znaleziono pliku."); }
 			}
 			
@@ -54,7 +54,7 @@ public class Test {
 				if(verNum < 0 || edgNum < 0) {
 					continue;
 				}
-				alg.run(populationQuantity, maxGen, mutationProbability, "", verNum, edgNum);
+
 			}
 			
 			else if(choice == 3) {

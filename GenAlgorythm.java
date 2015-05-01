@@ -5,17 +5,26 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class GenAlgorythm {
 	private int vertNum = 0;
 	private int[][] adjMatrix;
-	public void run(int populationQuantity, int maxGen, double mutationProbability, String path, int verNum, int edgNum) throws FileNotFoundException {
+	public Population population;
+	public void run(int populationQuantity, int maxGen, double mutationProbability, String path, int verNum, int edgNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
 		
 		if(path == "") {
 			this.genGraph(verNum, edgNum);
@@ -25,20 +34,25 @@ public class GenAlgorythm {
 		}
 		
 		displayAdjMatrix();
-		displayGraph(vertNum);
+		//displayGraph(vertNum);
+		//population.adjMatrix = adjMatrix;
+		population = new Population(populationQuantity, vertNum, adjMatrix);
 		
-		Population population = new Population(populationQuantity, vertNum);
-		population.adjMatrix = adjMatrix;
 		population.sort();
 		
+		
+		pbar.setMinimum(0);
+		pbar.setMaximum(maxGen);
 		int gen = 0;
 		while(gen < maxGen) {
 			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
-			newChild1.mutate(0.1);			
+			newChild1.mutate(0.1);	
+			newChild1.fitness(adjMatrix);
 			population.add(newChild1);
 			
 			Chromosome newChild2 =  population.get(1).crossover(population.get(0));
-			newChild2.mutate(mutationProbability);			
+			newChild2.mutate(mutationProbability);
+			newChild2.fitness(adjMatrix);
 			population.add(newChild2);
 			
 			population.sort();
@@ -46,9 +60,14 @@ public class GenAlgorythm {
 			population.removeLast();
 			population.removeLast();
 			
-			population.print();
+			population.print(pane, gen);
+			//population.print2(gen);
+			
 			
 			gen++;
+			pbar.setValue(gen);
+			pbar.revalidate();
+			pbar.repaint();
 		}
 
 	}
@@ -126,7 +145,7 @@ public class GenAlgorythm {
     	System.out.println();
 	}
 	
-	private void displayGraph(int verNum)
+	public void displayGraph(int verNum, JPanel panel)
 	{
 		Vertexx[] tab = new Vertexx[verNum];
 		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
@@ -140,20 +159,25 @@ public class GenAlgorythm {
 				if(adjMatrix[i][j] == 1) {
 					Edgee e = new Edgee(i, j);
 					g.addEdge(e, tab[i], tab[j]);
+					
 				}
 			}
 		}
 		
-        Layout<Integer, String> layout = new CircleLayout(g);
-        layout.setSize(new Dimension(500,500)); 
+        Layout<Integer, String> layout = new KKLayout(g);
+        layout.setSize(new Dimension(650,300)); 
         BasicVisualizationServer<Integer,String> vv = new BasicVisualizationServer<Integer,String>(layout);
-        vv.setPreferredSize(new Dimension(650,650)); 
-        
-        JFrame frame = new JFrame("Graph");
-        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frame.getContentPane().add(vv); 
-        frame.pack();
-        frame.setVisible(true);    
+        vv.setPreferredSize(new Dimension(650,300)); 
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+
+        panel.add(vv);
+        panel.revalidate();
+        //JFrame frame = new JFrame("Graph");
+        //frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        //frame.getContentPane().add(vv); 
+        //frame.pack();
+        //frame.setVisible(true);    
 	} 
 	
 }

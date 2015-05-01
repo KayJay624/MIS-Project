@@ -2,8 +2,9 @@ package badania;
 import java.util.Random;
 
 public class Chromosome {
-	private int[] chromosome;
+	public int[] chromosome;
 	private int length = 0;
+	public int fit;
 	
 	Chromosome(int l) {
 		chromosome = new int[l];
@@ -47,11 +48,11 @@ public class Chromosome {
 		}
 	}
 	
-	public int fitness(int [][] adjMatrix) {
+	public void fitness(int [][] adjMatrix) {
 		int sum = chromSum();
 		int penalty = this.length * vectorXvector(vectorXmatrix(this.chromosome, adjMatrix), this.chromosome);
 		
-		return sum - penalty;
+		fit = sum - penalty;
 	}
 	
 	public int size() {
