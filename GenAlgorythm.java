@@ -1,5 +1,6 @@
 package badania;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.*;
 import java.util.*;
@@ -9,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.xml.transform.Transformer;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -21,10 +23,12 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class GenAlgorythm {
+	private int iterations = 0;
+	private int k = 0;
 	private int vertNum = 0;
 	private int[][] adjMatrix;
 	public Population population;
-	public void run(int populationQuantity, int maxGen, double mutationProbability, String path, int verNum, int edgNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
+	public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int verNum, int edgNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
 		
 		if(path == "") {
 			this.genGraph(verNum, edgNum);
@@ -42,9 +46,9 @@ public class GenAlgorythm {
 		
 		
 		pbar.setMinimum(0);
-		pbar.setMaximum(maxGen);
+		//pbar.setMaximum(maxGen);
 		int gen = 0;
-		while(gen < maxGen) {
+		while(true) {
 			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
 			newChild1.mutate(0.1);	
 			newChild1.fitness(adjMatrix);
@@ -62,12 +66,25 @@ public class GenAlgorythm {
 			
 			population.print(pane, gen);
 			//population.print2(gen);
-			
-			
-			gen++;
+		
 			pbar.setValue(gen);
 			pbar.revalidate();
 			pbar.repaint();
+			
+			int kk = population.get(0).fit;
+			if (kk > k)
+			{
+				k = kk;
+				iterations = 0;
+			}
+			else
+			{
+				iterations++;
+			}
+			if (iterations >= (stopCon * vertNum))
+			{
+				break;
+			}
 		}
 
 	}
@@ -158,8 +175,7 @@ public class GenAlgorythm {
 			for(int j = 0; j <= i; j++) {
 				if(adjMatrix[i][j] == 1) {
 					Edgee e = new Edgee(i, j);
-					g.addEdge(e, tab[i], tab[j]);
-					
+					g.addEdge(e, tab[i], tab[j]);	
 				}
 			}
 		}
@@ -170,6 +186,7 @@ public class GenAlgorythm {
         vv.setPreferredSize(new Dimension(650,300)); 
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+        //vv.getRenderer().getVertexLabelRenderer().setC
 
         panel.add(vv);
         panel.revalidate();
