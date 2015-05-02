@@ -26,14 +26,20 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
+
 import javax.swing.JTextField;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.Caret;
+
 import java.awt.Font;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 import javax.swing.Box;
 import javax.swing.JRadioButton;
+
 
 public class Window {
 
@@ -44,17 +50,20 @@ public class Window {
 	private JTextField mutat;
 	
 	int pop;
-	int gen;
+	double gen;
 	double mut;
 	private JTextField wierz;
 	private JTextField kraw;
+	private JTextField sciezka;
 	int wie;
 	int kra;
+	String sciez;
 	JRadioButton rdbtnGenerujGraf;
 	JRadioButton rdbtnWczytajZPliku;
 	
 	JPanel panel_1;
 	JProgressBar progressBar;
+	private JTextField textField;
 
 	/**
 	 * Launch the application.
@@ -79,49 +88,82 @@ public class Window {
 		initialize();
 	}
 
+	public void displayMessage(String s)
+	{
+		 textArea.append(s+"\n");
+		 textArea.repaint();
+		 textArea.revalidate();
+	}
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
+		frame = new JFrame("Problem maksymalnego zbioru niezależnego");
 		frame.setBounds(100, 100, 789, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		JButton btnNewButton = new JButton("Uruchom");
-		btnNewButton.setBounds(4, 314, 134, 23);
-		btnNewButton.addActionListener(new ActionListener() {
+		final JButton btnUruchom = new JButton("Uruchom");
+		btnUruchom.setBounds(4, 314, 134, 23);
+		btnUruchom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				
+				//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
+				
 				GenAlgorythm alg = new GenAlgorythm();
 				try {
 					pop = Integer.parseInt(popul.getText());
-					gen = Integer.parseInt(gener.getText());
+					if(pop < 1) {
+						pop = 1;
+					}
+					gen = Double.parseDouble(gener.getText());
 					mut = Double.parseDouble(mutat.getText());
+					if(mut < 0) {
+						mut = 0;
+					}
+					else if(mut > 1) {
+						mut = 1;
+					}
 					progressBar.setValue(0);
 					textArea.setText("");
 					if(rdbtnGenerujGraf.isSelected()) {		
-						kra = Integer.parseInt(kraw.getText());
-						wie = Integer.parseInt(wierz.getText());
-						alg.run(pop, gen, mut, "", wie, kra, textArea, progressBar);
-						panel_1.removeAll();
-						alg.displayGraph(wie, panel_1);
-						panel_1.repaint();
+						try{
+							kra = Integer.parseInt(kraw.getText());
+							wie = Integer.parseInt(wierz.getText());
+							if(wie < 0) {
+								wie = 1;
+							}
+							alg.run(pop, gen, mut, "", wie, kra, textArea, progressBar);
+							panel_1.removeAll();
+							alg.displayGraph(wie, panel_1);
+							panel_1.repaint();
+						}
+						catch(Exception e){
+							displayMessage("Należy wpisać liczby.");
+						}
 					} else if(rdbtnWczytajZPliku.isSelected()) {
-						alg.run(pop, gen, mut, "graf.txt", 0, 0, textArea, progressBar);
-						panel_1.removeAll();
-						alg.displayGraph(8, panel_1);
-						panel_1.repaint();
+						sciez = sciezka.getText();
+						try
+						{
+							alg.run(pop, gen, mut, sciez, 0, 0, textArea, progressBar);
+							panel_1.removeAll();
+							alg.displayGraph(8, panel_1);
+							panel_1.repaint();
+						}
+						catch(Exception e){
+							displayMessage("Nie znaleziono pliku.");
+						}
 					}
 					
 					//textPane.setText(alg.population.print());;
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+				} catch (Exception e) {
+					displayMessage("Należy wpisać liczby.");
+				} 				
 			}
 		});
 		frame.getContentPane().setLayout(null);
-		frame.getContentPane().add(btnNewButton);
+		frame.getContentPane().add(btnUruchom);
+		btnUruchom.setEnabled(false);
 		
 		progressBar = new JProgressBar(0,100);
 		progressBar.setBounds(148, 314, 615, 23);
@@ -135,12 +177,12 @@ public class Window {
 		
 		textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
-		textArea.setFont(new Font("Arial", Font.PLAIN, 12));
+		//textArea.setCaret((Caret) new Font("Arial", Font.PLAIN, 12));
 		textArea.setLineWrap(true);
 		textArea.setEditable(false);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 10, 763, 300);
+		panel.setBounds(12, 12, 763, 300);
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
@@ -150,22 +192,22 @@ public class Window {
 		panel.add(popul);
 		popul.setColumns(10);
 		
-		JLabel lblLiczebnoPopulacji = new JLabel("Liczebno\u015B\u0107 populacji:");
-		lblLiczebnoPopulacji.setBounds(0, 6, 135, 14);
+		JLabel lblLiczebnoPopulacji = new JLabel("Liczebno\u015B\u0107 populacji");
+		lblLiczebnoPopulacji.setBounds(0, 6, 172, 14);
 		panel.add(lblLiczebnoPopulacji);
 		
-		JLabel lblLiczbaGeneracji = new JLabel("Liczba generacji:");
-		lblLiczbaGeneracji.setBounds(0, 47, 99, 14);
+		JLabel lblLiczbaGeneracji = new JLabel("Warunek stopu");
+		lblLiczbaGeneracji.setBounds(0, 47, 144, 14);
 		panel.add(lblLiczbaGeneracji);
 		
 		gener = new JTextField();
-		gener.setText("20");
+		gener.setText("1");
 		gener.setBounds(0, 61, 99, 20);
 		panel.add(gener);
 		gener.setColumns(10);
 		
-		JLabel lblMutacja = new JLabel("Mutacja:");
-		lblMutacja.setBounds(0, 88, 86, 14);
+		JLabel lblMutacja = new JLabel("Mutacja");
+		lblMutacja.setBounds(0, 88, 172, 14);
 		panel.add(lblMutacja);
 		
 		mutat = new JTextField();
@@ -175,7 +217,7 @@ public class Window {
 		mutat.setColumns(10);
 		
 		panel_1 = new JPanel();
-		panel_1.setBounds(110, 0, 650, 300);
+		panel_1.setBounds(162, 0, 598, 300);
 		panel.add(panel_1);
 		
 		rdbtnGenerujGraf = new JRadioButton("Generuj graf");
@@ -184,53 +226,61 @@ public class Window {
 				if(rdbtnGenerujGraf.isSelected()) {						
 					wierz.setEnabled(true);
 					kraw.setEnabled(true);
-					rdbtnWczytajZPliku.setEnabled(false);
-					//kra = Integer.parseInt(kraw.getText());
-					//wie = Integer.parseInt(wierz.getText());
+					sciezka.setEnabled(false);
+					btnUruchom.setEnabled(true);
 				} else {
 					wierz.setEnabled(false);
 					kraw.setEnabled(false);
-					rdbtnWczytajZPliku.setEnabled(true);
 				}
 			}
 		});
-		rdbtnGenerujGraf.setBounds(0, 129, 109, 23);
+		rdbtnGenerujGraf.setBounds(0, 129, 144, 23);
 		panel.add(rdbtnGenerujGraf);
 		
 		rdbtnWczytajZPliku = new JRadioButton("Wczytaj z pliku");
 		rdbtnWczytajZPliku.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(rdbtnWczytajZPliku.isSelected()) {						
-					rdbtnGenerujGraf.setEnabled(false);
-				} else {				
-					rdbtnGenerujGraf.setEnabled(true);
+					sciezka.setEnabled(true);
+					wierz.setEnabled(false);
+					kraw.setEnabled(false);
+					btnUruchom.setEnabled(true);
+				} else {		
+					sciezka.setEnabled(false);
 				}
 			}
 		});
-		rdbtnWczytajZPliku.setBounds(0, 234, 109, 23);
+		rdbtnWczytajZPliku.setBounds(0, 249, 144, 23);
 		panel.add(rdbtnWczytajZPliku);
 		
-		JLabel lblIlocWierzchokow = new JLabel("Ilo\u015Bc wierzcho\u0142kow:");
-		lblIlocWierzchokow.setBounds(10, 151, 99, 14);
+		ButtonGroup group = new ButtonGroup();
+	    group.add(rdbtnGenerujGraf);
+	    group.add(rdbtnWczytajZPliku);
+		
+		JLabel lblIlocWierzchokow = new JLabel("Liczba wierzchołków");
+		lblIlocWierzchokow.setBounds(10, 157, 162, 14);
 		panel.add(lblIlocWierzchokow);
 		
 		wierz = new JTextField();
-		wierz.setBounds(10, 165, 86, 20);
+		wierz.setBounds(20, 172, 86, 20);
 		panel.add(wierz);
 		wierz.setColumns(10);
 		wierz.setEnabled(false);
 		
-		JLabel lblIloKrawdzi = new JLabel("Ilo\u015B\u0107 kraw\u0119dzi:");
-		lblIloKrawdzi.setBounds(10, 193, 99, 14);
+		JLabel lblIloKrawdzi = new JLabel("Liczba krawędzi");
+		lblIloKrawdzi.setBounds(10, 204, 134, 14);
 		panel.add(lblIloKrawdzi);
 		
 		kraw = new JTextField();
-		kraw.setBounds(10, 207, 86, 20);
+		kraw.setBounds(20, 221, 86, 20);
 		panel.add(kraw);
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
 		
-		String t = "Elo ziomeczku df dsf asdf sd f sdf \n dsfsdfsdf fsdafasdffsdafasdfasdf";
-		
+		sciezka = new JTextField();
+		sciezka.setBounds(20, 272, 86, 20);
+		panel.add(sciezka);
+		sciezka.setColumns(10);
+		sciezka.setEnabled(false);		
 	}
 }
