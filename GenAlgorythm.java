@@ -3,6 +3,8 @@ package badania;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.swing.JFrame;
@@ -32,6 +34,7 @@ public class GenAlgorythm {
 		
 		if(path == "") {
 			this.genGraph(verNum, edgNum);
+			this.writeToFile(edgNum);
 		}
 		else{
 			this.getGraph(path);	
@@ -85,6 +88,7 @@ public class GenAlgorythm {
 			{
 				break;
 			}
+			System.out.println("it: "+iterations);
 		}
 
 	}
@@ -162,6 +166,35 @@ public class GenAlgorythm {
     	System.out.println();
 	}
 	
+    private String getDateTime() {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+	
+	public void writeToFile(int edgNum) {
+		try {
+			String fileName = "graf_"+vertNum+"-"+edgNum+"_"+getDateTime()+".txt";
+			File f = new File("/home/jan/Desktop/"+fileName); //dostosowac sobie sciezke
+			f.createNewFile();
+			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/home/jan/Desktop/"+fileName), "utf-8"));
+			for (int i = 0; i < vertNum; i++)
+			{
+				writer.write((i+1)+",");
+			}
+			writer.write("\n");
+			for(int i = 0; i < vertNum; i++) {
+				for(int j = 0; j <= i; j++) {
+					if(adjMatrix[i][j] == 1) {
+						writer.write((i+1)+","+(j+1)+"\n");
+					}
+				}
+			}
+			writer.close();
+		}
+		catch(Exception e) {e.printStackTrace();}
+	}
+	
 	public void displayGraph(int verNum, JPanel panel)
 	{
 		Vertexx[] tab = new Vertexx[verNum];
@@ -198,3 +231,4 @@ public class GenAlgorythm {
 	} 
 	
 }
+
