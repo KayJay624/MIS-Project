@@ -1,7 +1,11 @@
 package badania;
 
+
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.swing.JFrame;
@@ -9,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+//import javax.xml.transform.Transformer;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -20,11 +25,29 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.SparseGraph;
+import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Paint;
+import java.awt.Stroke;
+import javax.swing.JFrame;
+import org.apache.commons.collections15.Transformer;
+
 public class GenAlgorythm {
+	private int iterations = 0;
+	private int k = 0;
 	private int vertNum = 0;
 	private int[][] adjMatrix;
 	public Population population;
-	public void run(int populationQuantity, int maxGen, double mutationProbability, String path, int verNum, int edgNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
+	
+	public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int verNum, int edgNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
 		
 		if(path == "") {
 			this.genGraph(verNum, edgNum);
@@ -33,20 +56,20 @@ public class GenAlgorythm {
 			this.getGraph(path);	
 		}
 		
-		displayAdjMatrix();
-		//displayGraph(vertNum);
+		//displayAdjMatrix();
+		//displayGraph(vertNum, pane);
 		//population.adjMatrix = adjMatrix;
 		population = new Population(populationQuantity, vertNum, adjMatrix);
 		
 		population.sort();
 		
 		
-		pbar.setMinimum(0);
-		pbar.setMaximum(maxGen);
+		//pbar.setMinimum(0);
+		//pbar.setMaximum(maxGen);
 		int gen = 0;
-		while(gen < maxGen) {
+		while(true) {
 			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
-			newChild1.mutate(0.1);	
+			newChild1.mutate(mutationProbability);	
 			newChild1.fitness(adjMatrix);
 			population.add(newChild1);
 			
@@ -62,13 +85,27 @@ public class GenAlgorythm {
 			
 			population.print(pane, gen);
 			//population.print2(gen);
-			
-			
 			gen++;
-			pbar.setValue(gen);
-			pbar.revalidate();
-			pbar.repaint();
+			//pbar.setValue(gen);
+			//pbar.revalidate();
+			//pbar.repaint();
+			population.print2(gen);
+			int kk = population.get(0).fit;
+			if (kk > k)
+			{
+				k = kk;
+				iterations = 0;
+			}
+			else
+			{
+				iterations++;
+			}
+			if (iterations >= (stopCon * vertNum) || gen >= 2 * vertNum)
+			{
+				break;
+			}
 		}
+		
 
 	}
 	
@@ -101,7 +138,7 @@ public class GenAlgorythm {
 		}
 	}
 	
-	private void genGraph(int verNum, int edgNum) {
+	public void genGraph(int verNum, int edgNum) {
 		Random rand = new Random();
 		adjMatrix = new int[verNum][verNum];
 		vertNum = verNum;
@@ -113,7 +150,7 @@ public class GenAlgorythm {
 			}
 		}
 		
-		if(edgNum > (verNum * (verNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzchoÅ‚ki i milion krawedzi
+		if(edgNum > (verNum * (verNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzcho³ki i milion krawedzi
 			edgNum = (verNum * (verNum -1))/2;  // Zreszta to i tak konieczne, bo wtedy while moglby trwac wiecznie
 		}
 			
@@ -158,18 +195,34 @@ public class GenAlgorythm {
 			for(int j = 0; j <= i; j++) {
 				if(adjMatrix[i][j] == 1) {
 					Edgee e = new Edgee(i, j);
-					g.addEdge(e, tab[i], tab[j]);
-					
+					g.addEdge(e, tab[i], tab[j]);	
 				}
 			}
 		}
 		
-        Layout<Integer, String> layout = new KKLayout(g);
+		// Transformer maps the vertex number to a vertex property
+       Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
+            public Paint transform(Vertexx i) {
+            	int[] tab = population.get(0).chromosome.clone();
+            	//for(int j = 0; j < tab.length; j++) {
+            		if(tab[i.id] == 1) {
+            			return Color.GREEN;
+            		} else {
+            			return Color.RED;
+            		}
+            	//}
+                
+            }
+        };
+	
+        Layout<Vertexx, Edgee> layout = new KKLayout(g);
         layout.setSize(new Dimension(650,300)); 
-        BasicVisualizationServer<Integer,String> vv = new BasicVisualizationServer<Integer,String>(layout);
+        BasicVisualizationServer<Vertexx,Edgee> vv = new BasicVisualizationServer<Vertexx,Edgee>(layout);
         vv.setPreferredSize(new Dimension(650,300)); 
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv.getRenderContext().setVertexFillPaintTransformer(vertexColor);
         vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+        //vv.getRenderer().getVertexLabelRenderer().setC
 
         panel.add(vv);
         panel.revalidate();
@@ -178,6 +231,90 @@ public class GenAlgorythm {
         //frame.getContentPane().add(vv); 
         //frame.pack();
         //frame.setVisible(true);    
-	} 
+	}
+	
+	public void algNormal(int verNum) {
+		//this.genGraph(verNum, edgNum);
+		try {
+			this.getGraph("graf_500-500_.txt");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		Vertexx[] tab = new Vertexx[verNum];
+		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
+		Graph<Vertexx, Edgee> S = new SparseMultigraph<Vertexx, Edgee>();
+		
+		for(int i = 0; i < verNum; i++) {
+			Vertexx v = new Vertexx(i);
+			g.addVertex(v);
+			tab[i] = v;
+		}
+		for(int i = 0; i < verNum; i++) {
+			for(int j = 0; j <= i; j++) {
+				if(adjMatrix[i][j] == 1) {
+					Edgee e = new Edgee(i, j);
+					g.addEdge(e, tab[i], tab[j]);	
+				}
+			}
+		}
+		
+		Random generator = new Random();
+		while(g.getVertexCount() != 0) {
+			 Collection<Vertexx> cW = g.getVertices();
+			 LinkedList<Vertexx> lW = new LinkedList<Vertexx>(cW); 
+			 Integer v = generator.nextInt(lW.size());	
+			 
+			 if(g.containsVertex(lW.get(v))) {
+				 S.addVertex(lW.get(v));
+				 //System.out.println("Dodalem do S wierzcholek:" + lW.get(v));
+				 
+				 Collection<Edgee> cK = g.getIncidentEdges(lW.get(v));
+				 LinkedList<Edgee> lK = new LinkedList<Edgee>(cK);
+				 //System.out.println(lK.size());
+
+				 Collection<Vertexx> cS = g.getNeighbors(lW.get(v));
+				 LinkedList<Vertexx> lS = new LinkedList<Vertexx>(cS);
+				 for(int i = 0; i < lS.size(); i++) {
+					 g.removeVertex(lS.get(i));
+					 //System.out.println("Usunolem sasiada :" + lS.get(i));
+				 }
+				 
+				 g.removeVertex(lW.get(v));
+				 
+			 }
+			 
+			 
+		 }
+		
+		System.out.println(S.getVertexCount());
+	}
+	
+	 private String getDateTime() {
+	        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
+	        Date date = new Date();
+	        return dateFormat.format(date);
+	    }
+		
+		public void writeToFile(int edgNum) {
+			try {
+				String fileName = "graf_"+vertNum+"-"+edgNum+"_"+".txt";
+				PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+				for (int i = 0; i < vertNum; i++)
+				{
+					writer.write((i+1)+",");
+				}
+				writer.write("\n");
+				for(int i = 0; i < vertNum; i++) {
+					for(int j = 0; j <= i; j++) {
+						if(adjMatrix[i][j] == 1) {
+							writer.write((i+1)+","+(j+1)+"\n");
+						}
+					}
+				}
+				writer.close();
+			}
+			catch(Exception e) {e.printStackTrace();}
+		}
 	
 }
