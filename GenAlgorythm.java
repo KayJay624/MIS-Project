@@ -17,7 +17,10 @@ import javax.swing.JTextPane;
 //import javax.xml.transform.Transformer;
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -51,10 +54,17 @@ public class GenAlgorythm {
 	private int k = 0;
 	private int vertNum = 0;
 	private int edgeNum = 0;
+<<<<<<< HEAD
 	public int[][] adjMatrix;
 	public Population population;
 	
 public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int _vertNum, int _edgeNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
+=======
+	private int[][] adjMatrix;
+	public Population population;
+	
+	public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int _vertNum, int _edgeNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
+>>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 		
 		if(path == "") {
 			vertNum = _vertNum;
@@ -144,14 +154,19 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 	       int j = Integer.parseInt(edges[1]) - 1;
 	       
 	       adjMatrix[i][j] = 1;
-	       adjMatrix[j][i] = 1; 	    	  
+	       adjMatrix[j][i] = 1; 
+	       edgeNum++;
 		}
+	   in.close();
 	}
 	
 	public void genGraph() {
 		Random rand = new Random();
 		adjMatrix = new int[vertNum][vertNum];
+<<<<<<< HEAD
 		vertNum = vertNum;
+=======
+>>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 		
 		int n = 0; 	
 		for(int i = 0; i < vertNum; i++) {
@@ -159,10 +174,13 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 				adjMatrix[i][j] = 0;
 			}
 		}
+<<<<<<< HEAD
 		
 		if(edgeNum > (vertNum * (vertNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzcho³ki i milion krawedzi
 			edgeNum = (vertNum * (vertNum -1))/2;  // Zreszta to i tak konieczne, bo wtedy while moglby trwac wiecznie
 		}
+=======
+>>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 			
 		while(n < edgeNum) {
 			int i = rand.nextInt(vertNum);
@@ -172,11 +190,9 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 				adjMatrix[i][j] = 0;
 			} else if(adjMatrix[i][j] == 0) {
 				adjMatrix[i][j] = 1;
-				adjMatrix[j][i] = 1;
-					
+				adjMatrix[j][i] = 1;	
 				n++;
 			}
-			
 		}
 	}
 	
@@ -251,13 +267,12 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
         
 
 	}
-	
+
 	public void algNormal(int verNum) {
 		//this.genGraph(verNum, edgNum);
 		try {
 			this.getGraph("graf_500.txt");
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		verNum = adjMatrix[0].length;
@@ -336,15 +351,25 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 	}
 	
 	 private String getDateTime() {
+<<<<<<< HEAD
 	        DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+=======
+	        DateFormat dateFormat = new SimpleDateFormat("mmss");
+>>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 	        Date date = new Date();
 	        return dateFormat.format(date);
 	    }
 		
 		public void writeToFile() {
+<<<<<<< HEAD
 			try {
 				String fileName = "graf_"+vertNum+"-"+edgeNum+"_"+getDateTime()+".txt";
 				PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+=======
+			try {           //data jest przydatna gdyby byly dwa grafy o takich samych rozmiarach, robi za id
+				String fileName = "/home/komp/graf_"+vertNum+"-"+edgeNum+"_"+getDateTime()+".txt"; //dostosowac sobie sciezke 
+				PrintWriter writer = new PrintWriter(fileName, "UTF-8"); 
+>>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 				for (int i = 0; i < vertNum; i++)
 				{
 					writer.write((i+1)+",");
