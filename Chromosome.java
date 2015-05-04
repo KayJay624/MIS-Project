@@ -27,7 +27,7 @@ public class Chromosome {
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
-			if(i < (length / 2)) {
+			if(i < (this.length / 2)) {
 				newChrom.chromosome[i] = other.chromosome[i];				  
 			} 
 			  
@@ -50,7 +50,7 @@ public class Chromosome {
 	
 	public void fitness(int [][] adjMatrix) {
 		int sum = chromSum();
-		int penalty = this.length * vectorXvector(vectorXmatrix(this.chromosome, adjMatrix), this.chromosome);
+		int penalty = length * vectorXvector(vectorXmatrix(this.chromosome, adjMatrix), this.chromosome);
 		
 		fit = sum - penalty;
 	}
@@ -74,7 +74,7 @@ public class Chromosome {
 	private int[] vectorXmatrix(int[] vec, int[][] mat) {
 		 int[] wynik = new int[vec.length];
 			 for(int i = 0; i < vec.length; i++) {
-				 for(int j = 0; j < mat[0].length; j++) {
+				 for(int j = 0; j < i; j++) {
 					 int temp = 0;
 	                 for (int w = 0; w < mat.length; w++) { //ilosc wierszy tab2
 	                	 temp += vec[w] * mat[w][j];

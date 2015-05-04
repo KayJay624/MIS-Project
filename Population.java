@@ -56,7 +56,24 @@ public class Population {
 		 pane.repaint();
 		 pane.revalidate();
 	}
+
 	
+	public String print3(int gen) {
+		String wynik = "";
+		wynik += "Generacja: " + gen + "\n";
+		wynik += "nr.   fitness:   chromosom: \n";
+		for(int j = 0 ; j < population.size(); j++) {
+   		  	wynik += (j+1 + ".    " + population.get(j).fit + "          ");
+	    	  for(int i = 0; i < population.get(j).size()-1; i++) {
+	    		  wynik += ( population.get(j).get(i) + "  ");	  
+	    	  }
+	    	  wynik+="\n";
+   	  	}
+   	  
+		 wynik+="\n";
+		 wynik+="\n";
+		 return wynik;
+	}
 	public void print2(int gen) {
 		String wynik = "";
 		System.out.println("Generacja: " + gen + "\n") ;

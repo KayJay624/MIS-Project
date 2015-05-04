@@ -11,11 +11,15 @@ import java.util.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 //import javax.xml.transform.Transformer;
 
+
+
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -24,7 +28,6 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -32,27 +35,36 @@ import edu.uci.ics.jung.graph.SparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Stroke;
+
 import javax.swing.JFrame;
+
 import org.apache.commons.collections15.Transformer;
 
 public class GenAlgorythm {
 	private int iterations = 0;
 	private int k = 0;
 	private int vertNum = 0;
-	private int[][] adjMatrix;
+	private int edgeNum = 0;
+	public int[][] adjMatrix;
 	public Population population;
 	
-	public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int verNum, int edgNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
+public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int _vertNum, int _edgeNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
 		
 		if(path == "") {
-			this.genGraph(verNum, edgNum);
+			vertNum = _vertNum;
+			if (_edgeNum > vertNum * (vertNum - 1) / 2 ) {
+				_edgeNum = vertNum * (vertNum - 1) / 2;
+			}
+			edgeNum = _edgeNum;
+			this.genGraph();
 		}
-		else{
+		else {
 			this.getGraph(path);	
 		}
 		
@@ -100,13 +112,11 @@ public class GenAlgorythm {
 			{
 				iterations++;
 			}
-			if (iterations >= (stopCon * vertNum) || gen >= 2 * vertNum)
+			if (iterations >= (stopCon * vertNum) || gen >= 5 * vertNum)
 			{
 				break;
 			}
 		}
-		
-
 	}
 	
 	private void getGraph(String path) throws FileNotFoundException {
@@ -138,25 +148,25 @@ public class GenAlgorythm {
 		}
 	}
 	
-	public void genGraph(int verNum, int edgNum) {
+	public void genGraph() {
 		Random rand = new Random();
-		adjMatrix = new int[verNum][verNum];
-		vertNum = verNum;
+		adjMatrix = new int[vertNum][vertNum];
+		vertNum = vertNum;
 		
 		int n = 0; 	
-		for(int i = 0; i < verNum; i++) {
-			for(int j = 0; j < verNum; j++) {									
+		for(int i = 0; i < vertNum; i++) {
+			for(int j = 0; j < vertNum; j++) {									
 				adjMatrix[i][j] = 0;
 			}
 		}
 		
-		if(edgNum > (verNum * (verNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzcho³ki i milion krawedzi
-			edgNum = (verNum * (verNum -1))/2;  // Zreszta to i tak konieczne, bo wtedy while moglby trwac wiecznie
+		if(edgeNum > (vertNum * (vertNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzcho³ki i milion krawedzi
+			edgeNum = (vertNum * (vertNum -1))/2;  // Zreszta to i tak konieczne, bo wtedy while moglby trwac wiecznie
 		}
 			
-		while(n < edgNum) {
-			int i = rand.nextInt(verNum);
-			int j = rand.nextInt(verNum);
+		while(n < edgeNum) {
+			int i = rand.nextInt(vertNum);
+			int j = rand.nextInt(vertNum);
 				
 			if(i == j) {
 				adjMatrix[i][j] = 0;
@@ -182,16 +192,20 @@ public class GenAlgorythm {
     	System.out.println();
 	}
 	
-	public void displayGraph(int verNum, JPanel panel)
+	public void displayGraph(int _x, int _y, JPanel panel) //nie trza przekazywac liczby wierzcholkow, bo przeciez jest pole vertNum
 	{
-		Vertexx[] tab = new Vertexx[verNum];
+		int x, y; //rozmiary okienka
+		x = _x;
+		y = _y;
+		
+		Vertexx[] tab = new Vertexx[vertNum];
 		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
-		for(int i = 0; i < verNum; i++) {
+		for(int i = 0; i < vertNum; i++) {
 			Vertexx v = new Vertexx(i);
 			g.addVertex(v);
 			tab[i] = v;
 		}
-		for(int i = 0; i < verNum; i++) {
+		for(int i = 0; i < vertNum; i++) {
 			for(int j = 0; j <= i; j++) {
 				if(adjMatrix[i][j] == 1) {
 					Edgee e = new Edgee(i, j);
@@ -200,64 +214,75 @@ public class GenAlgorythm {
 			}
 		}
 		
-		// Transformer maps the vertex number to a vertex property
        Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
             public Paint transform(Vertexx i) {
             	int[] tab = population.get(0).chromosome.clone();
-            	//for(int j = 0; j < tab.length; j++) {
-            		if(tab[i.id] == 1) {
-            			return Color.GREEN;
-            		} else {
-            			return Color.RED;
-            		}
-            	//}
-                
+        		if(tab[i.id] == 1) {
+        			return Color.GREEN;
+        		} else {
+        			return Color.ORANGE;
+        		}              
             }
         };
 	
         Layout<Vertexx, Edgee> layout = new KKLayout(g);
-        layout.setSize(new Dimension(650,300)); 
+        layout.setSize(new Dimension(x, y)); 
         BasicVisualizationServer<Vertexx,Edgee> vv = new BasicVisualizationServer<Vertexx,Edgee>(layout);
-        vv.setPreferredSize(new Dimension(650,300)); 
+        vv.setPreferredSize(new Dimension(x, y)); 
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderContext().setVertexFillPaintTransformer(vertexColor);
         vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
-        //vv.getRenderer().getVertexLabelRenderer().setC
 
-        panel.add(vv);
-        panel.revalidate();
-        //JFrame frame = new JFrame("Graph");
-        //frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        //frame.getContentPane().add(vv); 
-        //frame.pack();
-        //frame.setVisible(true);    
+        if (panel == null) {
+        	JFrame frame = new JFrame("Graf");
+        	frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        	frame.getContentPane().add(vv); 
+        	frame.pack();
+        	frame.setVisible(true);  
+            JPanel container = new JPanel();
+            container.add(vv);
+            JScrollPane jsp = new JScrollPane(container);
+            frame.add(jsp);
+        }
+        else {
+            panel.add(vv);
+            panel.revalidate();  	
+        } 
+        
+
 	}
 	
 	public void algNormal(int verNum) {
 		//this.genGraph(verNum, edgNum);
 		try {
-			this.getGraph("graf_500-500_.txt");
+			this.getGraph("graf_500.txt");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		verNum = adjMatrix[0].length;
 		Vertexx[] tab = new Vertexx[verNum];
 		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
 		Graph<Vertexx, Edgee> S = new SparseMultigraph<Vertexx, Edgee>();
+		Graph<Vertexx, Edgee> gC =  new SparseMultigraph<Vertexx, Edgee>();;
 		
 		for(int i = 0; i < verNum; i++) {
 			Vertexx v = new Vertexx(i);
 			g.addVertex(v);
+			gC.addVertex(v);
 			tab[i] = v;
 		}
 		for(int i = 0; i < verNum; i++) {
 			for(int j = 0; j <= i; j++) {
 				if(adjMatrix[i][j] == 1) {
 					Edgee e = new Edgee(i, j);
-					g.addEdge(e, tab[i], tab[j]);	
+					g.addEdge(e, tab[i], tab[j]);
+					gC.addEdge(e, tab[i], tab[j]);	
 				}
 			}
 		}
+		
+		
 		
 		Random generator = new Random();
 		while(g.getVertexCount() != 0) {
@@ -286,19 +311,39 @@ public class GenAlgorythm {
 			 
 			 
 		 }
+		Collection<Vertexx> cW = gC.getVertices();
+		LinkedList<Vertexx> lW = new LinkedList<Vertexx>(cW); 
 		
-		System.out.println(S.getVertexCount());
+		 Collection<Vertexx> cS = S.getVertices();
+		 LinkedList<Vertexx> lS = new LinkedList<Vertexx>(cS);
+		int[] Stab = new int[lW.size()];
+		for(int i = 0; i < lW.size(); i++) {
+			for(int j = 0; j < lS.size(); j++) {
+				if(lW.get(i).id == lS.get(j).id) {
+					Stab[i] = 1;
+				} //else {
+				//	Stab[i] = 0;
+				//}
+			}
+		}
+		//System.out.println("ELO");
+		for(int k = 0; k < Stab.length; k++) {
+			System.out.print(Stab[k] + "  ");
+			//.System.out.println("ELO");
+		}
+		
+		System.out.println("\n" +S.getVertexCount());
 	}
 	
 	 private String getDateTime() {
-	        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
+	        DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
 	        Date date = new Date();
 	        return dateFormat.format(date);
 	    }
 		
-		public void writeToFile(int edgNum) {
+		public void writeToFile() {
 			try {
-				String fileName = "graf_"+vertNum+"-"+edgNum+"_"+".txt";
+				String fileName = "graf_"+vertNum+"-"+edgeNum+"_"+getDateTime()+".txt";
 				PrintWriter writer = new PrintWriter(fileName, "UTF-8");
 				for (int i = 0; i < vertNum; i++)
 				{

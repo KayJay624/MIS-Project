@@ -1,7 +1,7 @@
 package badania;
 
 import java.awt.EventQueue;
-
+import java.io.*;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
@@ -25,6 +25,7 @@ import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import javax.swing.JTextField;
@@ -35,6 +36,7 @@ import javax.swing.text.Caret;
 import java.awt.Font;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 import javax.swing.Box;
@@ -54,20 +56,19 @@ public class Window {
 	double mut;
 	private JTextField wierz;
 	private JTextField kraw;
-	private JTextField sciezka;
-	int wie;
-	int kra;
-	String sciez;
+	int wie, kra, chooseFileReturnVal;
+	String path;
 	JRadioButton rdbtnGenerujGraf;
 	JRadioButton rdbtnWczytajZPliku;
 	
 	JPanel panel_1;
 	JProgressBar progressBar;
 	private JTextField textField;
+	
+	private GenAlgorythm alg;
 
-	/**
-	 * Launch the application.
-	 */
+	//---------------------------------------------------------
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -81,9 +82,6 @@ public class Window {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public Window() {
 		initialize();
 	}
@@ -95,22 +93,43 @@ public class Window {
 		 textArea.revalidate();
 	}
 	
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
-		frame = new JFrame("Problem maksymalnego zbioru niezaleÅ¼nego");
+		final JFileChooser fc = new JFileChooser();
+		
+		frame = new JFrame("Problem maksymalnego zbioru niezale¿nego");
 		frame.setBounds(100, 100, 789, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		final JButton btnUruchom = new JButton("Uruchom");
-		btnUruchom.setBounds(4, 314, 134, 23);
-		btnUruchom.addActionListener(new ActionListener() {
+		final JButton btnPowieksz = new JButton("Powiêksz");
+		btnPowieksz.setBounds(630, 20, 134, 23);
+		btnPowieksz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				alg.displayGraph(2000, 2000, null);
+			}
+		});
+		
+		final JButton btnZapisz = new JButton("Zapisz");
+		btnZapisz.setBounds(630, 50, 134, 23);
+		btnZapisz.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				alg.writeToFile();
+			}
+		});
+		
+		final JButton btnWskazPlik = new JButton("Wska¿ plik");
+		btnWskazPlik.setBounds(25, 285, 90, 20);
+		btnWskazPlik.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chooseFileReturnVal = fc.showOpenDialog(frame);
+			}
+		});
+		
+		final JButton btnUruchom = new JButton("Uruchom");
+		btnUruchom.setBounds(10, 320, 134, 23);
+		btnUruchom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
 				
-				//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
-				
-				GenAlgorythm alg = new GenAlgorythm();
+				alg = new GenAlgorythm();
 				try {
 					pop = Integer.parseInt(popul.getText());
 					if(pop < 1) {
@@ -134,39 +153,49 @@ public class Window {
 								wie = 1;
 							}
 							alg.run(pop, gen, mut, "", wie, kra, textArea, progressBar);
-							panel_1.removeAll();
-							alg.displayGraph(wie, panel_1);
-							panel_1.repaint();
 						}
-						catch(Exception e){
-							displayMessage("NaleÅ¼y wpisaÄ‡ liczby.");
+						catch(Exception e) {
+							displayMessage("Nale¿y wpisaæ liczby.");
 						}
 					} else if(rdbtnWczytajZPliku.isSelected()) {
-						sciez = sciezka.getText();
 						try
 						{
-							alg.run(pop, gen, mut, sciez, 0, 0, textArea, progressBar);
-							panel_1.removeAll();
-							alg.displayGraph(8, panel_1);
-							panel_1.repaint();
+							if (chooseFileReturnVal == JFileChooser.APPROVE_OPTION) {
+					            File file = fc.getSelectedFile();
+					            path = file.getPath();
+					        } 
+							alg.run(pop, gen, mut, path, 0, 0, textArea, progressBar);
 						}
 						catch(Exception e){
-							displayMessage("Nie znaleziono pliku.");
+							displayMessage("Problem z plikiem.");
 						}
 					}
+					panel_1.removeAll();
+					alg.displayGraph(650, 300, panel_1);
+					btnPowieksz.setEnabled(true);
+					btnZapisz.setEnabled(true);
+					panel_1.repaint();
 					
-					//textPane.setText(alg.population.print());;
-				} catch (Exception e) {
-					displayMessage("NaleÅ¼y wpisaÄ‡ liczby.");
+				} 
+				catch (Exception e) {
+					displayMessage("Nale¿y wpisaæ liczby.");
 				} 				
 			}
 		});
 		frame.getContentPane().setLayout(null);
 		frame.getContentPane().add(btnUruchom);
+		frame.getContentPane().add(btnPowieksz);
+		frame.getContentPane().add(btnZapisz);
+		frame.getContentPane().add(btnWskazPlik);
 		btnUruchom.setEnabled(false);
+		btnPowieksz.setEnabled(false);
+		btnZapisz.setEnabled(false);
+		btnWskazPlik.setEnabled(false);
+		
+		
 		
 		progressBar = new JProgressBar(0,100);
-		progressBar.setBounds(148, 314, 615, 23);
+		progressBar.setBounds(160, 320, 600, 23);
 		progressBar.setValue(0);
 		progressBar.setStringPainted(true);
 		frame.getContentPane().add(progressBar);
@@ -175,50 +204,53 @@ public class Window {
 		scrollPane.setBounds(4, 349, 759, 121);
 		frame.getContentPane().add(scrollPane);
 		
-		textArea = new JTextArea();
+		textArea = new JTextArea(5,20);
+		//textArea.setColumns(2);
+		//textArea.setRows(5);
+		//textArea.setMargin(new Insets(5,5,5,5));
 		scrollPane.setViewportView(textArea);
 		//textArea.setCaret((Caret) new Font("Arial", Font.PLAIN, 12));
-		textArea.setLineWrap(true);
+		//textArea.setLineWrap(true);
 		textArea.setEditable(false);
 		
+		panel_1 = new JPanel();
+		panel_1.setBounds(160, 10, 600, 300);
+		frame.getContentPane().add(panel_1);
+		
 		JPanel panel = new JPanel();
-		panel.setBounds(12, 12, 763, 300);
+		panel.setBounds(12, 12, 150, 300);
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
 		popul = new JTextField();
 		popul.setText("5");
-		popul.setBounds(0, 20, 99, 20);
+		popul.setBounds(0, 20, 100, 20);
 		panel.add(popul);
 		popul.setColumns(10);
 		
 		JLabel lblLiczebnoPopulacji = new JLabel("Liczebno\u015B\u0107 populacji");
-		lblLiczebnoPopulacji.setBounds(0, 6, 172, 14);
+		lblLiczebnoPopulacji.setBounds(0, 5, 150, 15);
 		panel.add(lblLiczebnoPopulacji);
 		
 		JLabel lblLiczbaGeneracji = new JLabel("Warunek stopu");
-		lblLiczbaGeneracji.setBounds(0, 47, 144, 14);
+		lblLiczbaGeneracji.setBounds(0, 50, 150, 15);
 		panel.add(lblLiczbaGeneracji);
 		
 		gener = new JTextField();
 		gener.setText("1");
-		gener.setBounds(0, 61, 99, 20);
+		gener.setBounds(0, 65, 100, 20);
 		panel.add(gener);
 		gener.setColumns(10);
 		
 		JLabel lblMutacja = new JLabel("Mutacja");
-		lblMutacja.setBounds(0, 88, 172, 14);
+		lblMutacja.setBounds(0, 95, 150, 15);
 		panel.add(lblMutacja);
 		
 		mutat = new JTextField();
 		mutat.setText("0.1");
-		mutat.setBounds(0, 102, 99, 20);
+		mutat.setBounds(0, 110, 100, 20);
 		panel.add(mutat);
 		mutat.setColumns(10);
-		
-		panel_1 = new JPanel();
-		panel_1.setBounds(162, 0, 598, 300);
-		panel.add(panel_1);
 		
 		rdbtnGenerujGraf = new JRadioButton("Generuj graf");
 		rdbtnGenerujGraf.addActionListener(new ActionListener() {
@@ -226,7 +258,7 @@ public class Window {
 				if(rdbtnGenerujGraf.isSelected()) {						
 					wierz.setEnabled(true);
 					kraw.setEnabled(true);
-					sciezka.setEnabled(false);
+					btnWskazPlik.setEnabled(false);
 					btnUruchom.setEnabled(true);
 				} else {
 					wierz.setEnabled(false);
@@ -241,12 +273,12 @@ public class Window {
 		rdbtnWczytajZPliku.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(rdbtnWczytajZPliku.isSelected()) {						
-					sciezka.setEnabled(true);
 					wierz.setEnabled(false);
 					kraw.setEnabled(false);
+					btnWskazPlik.setEnabled(true);
 					btnUruchom.setEnabled(true);
 				} else {		
-					sciezka.setEnabled(false);
+					btnWskazPlik.setEnabled(false);
 				}
 			}
 		});
@@ -257,30 +289,30 @@ public class Window {
 	    group.add(rdbtnGenerujGraf);
 	    group.add(rdbtnWczytajZPliku);
 		
-		JLabel lblIlocWierzchokow = new JLabel("Liczba wierzchoÅ‚kÃ³w");
-		lblIlocWierzchokow.setBounds(10, 157, 162, 14);
+		JLabel lblIlocWierzchokow = new JLabel("Liczba wierzcho³ków");
+		lblIlocWierzchokow.setBounds(10, 160, 150, 15);
 		panel.add(lblIlocWierzchokow);
 		
 		wierz = new JTextField();
-		wierz.setBounds(20, 172, 86, 20);
+		wierz.setBounds(10, 175, 90, 20);
 		panel.add(wierz);
 		wierz.setColumns(10);
 		wierz.setEnabled(false);
 		
-		JLabel lblIloKrawdzi = new JLabel("Liczba krawÄ™dzi");
-		lblIloKrawdzi.setBounds(10, 204, 134, 14);
+		JLabel lblIloKrawdzi = new JLabel("Liczba krawêdzi");
+		lblIloKrawdzi.setBounds(10, 200, 134, 14);
 		panel.add(lblIloKrawdzi);
 		
 		kraw = new JTextField();
-		kraw.setBounds(20, 221, 86, 20);
+		kraw.setBounds(10, 215, 90, 20);
 		panel.add(kraw);
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
 		
-		sciezka = new JTextField();
-		sciezka.setBounds(20, 272, 86, 20);
-		panel.add(sciezka);
-		sciezka.setColumns(10);
-		sciezka.setEnabled(false);		
+		//sciezka = new JTextField();
+		//sciezka.setBounds(10, 270, 90, 20);
+		//panel.add(sciezka);
+		//sciezka.setColumns(10);
+		//sciezka.setEnabled(false);		
 	}
 }

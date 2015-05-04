@@ -2,8 +2,11 @@ package badania;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
+
 import java.beans.*;
+import java.io.FileNotFoundException;
 import java.util.Random;
  
 public class ProgressBarDemo extends JPanel
@@ -14,25 +17,54 @@ public class ProgressBarDemo extends JPanel
     private JButton startButton;
     private JTextArea taskOutput;
     private Task task;
+    GenAlgorythm alg;
+    Population population;
+    private int[][] adjMatrix;
+    int gen;
  
     class Task extends SwingWorker<Void, Void> {
         /*
          * Main task. Executed in background thread.
          */
+    	
         @Override
         public Void doInBackground() {         
             int progress = 0;
             //Initialize progress property.
             setProgress(0);
-            while (progress < 100) {
-                //Sleep for up to one second.
-                try {
-                    Thread.sleep(random.nextInt(1000));
-                } catch (InterruptedException ignore) {}
-                //Make random progress.
-                progress += random.nextInt(10);
-                setProgress(Math.min(progress, 100));
-            }
+            GenAlgorythm alg = new GenAlgorythm();
+            alg.genGraph(500, 1000);
+            adjMatrix = alg.adjMatrix;
+            population = new Population(5, 500, adjMatrix);
+    		
+    		population.sort();
+    		
+    		
+    		gen = 0;
+    		while(gen < 400) {
+    			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
+    			newChild1.mutate(0.1);	
+    			newChild1.fitness(adjMatrix);
+    			population.add(newChild1);
+    			
+    			Chromosome newChild2 =  population.get(1).crossover(population.get(0));
+    			newChild2.mutate(0.1);
+    			newChild2.fitness(adjMatrix);
+    			population.add(newChild2);
+    			
+    			population.sort();
+    			
+    			population.removeLast();
+    			population.removeLast();
+    			
+
+    			gen++;
+    			progress++;
+    			setProgress(progress/4);
+
+    		}
+            //progress += random.nextInt(10);
+            
             return null;
         }
  
@@ -94,8 +126,7 @@ public class ProgressBarDemo extends JPanel
         if ("progress" == evt.getPropertyName()) {
             int progress = (Integer) evt.getNewValue();
             progressBar.setValue(progress);
-            taskOutput.append(String.format(
-                    "Completed %d%% of task.\n", task.getProgress()));
+            taskOutput.append(population.print3(gen));
         } 
     }
  
