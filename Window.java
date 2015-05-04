@@ -1,7 +1,7 @@
 package badania;
 
 import java.awt.EventQueue;
-
+import java.io.*;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
@@ -25,6 +25,7 @@ import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import javax.swing.JTextField;
@@ -35,6 +36,7 @@ import javax.swing.text.Caret;
 import java.awt.Font;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 import javax.swing.Box;
@@ -54,10 +56,8 @@ public class Window {
 	double mut;
 	private JTextField wierz;
 	private JTextField kraw;
-	private JTextField sciezka;
-	int wie;
-	int kra;
-	String sciez;
+	int wie, kra, chooseFileReturnVal;
+	String path;
 	JRadioButton rdbtnGenerujGraf;
 	JRadioButton rdbtnWczytajZPliku;
 	
@@ -94,6 +94,8 @@ public class Window {
 	}
 	
 	private void initialize() {
+		final JFileChooser fc = new JFileChooser();
+		
 		frame = new JFrame("Problem maksymalnego zbioru niezależnego");
 		frame.setBounds(100, 100, 789, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -106,11 +108,19 @@ public class Window {
 			}
 		});
 		
-		final JButton btnZapisz = new JButton("Zapisz graf");
+		final JButton btnZapisz = new JButton("Zapisz");
 		btnZapisz.setBounds(630, 50, 134, 23);
 		btnZapisz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				alg.writeToFile();
+			}
+		});
+		
+		final JButton btnWskazPlik = new JButton("Wskaż plik");
+		btnWskazPlik.setBounds(34, 285, 110, 20);
+		btnWskazPlik.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chooseFileReturnVal = fc.showOpenDialog(frame);
 			}
 		});
 		
@@ -148,13 +158,16 @@ public class Window {
 							displayMessage("Należy wpisać liczby.");
 						}
 					} else if(rdbtnWczytajZPliku.isSelected()) {
-						sciez = sciezka.getText();
 						try
 						{
-							alg.run(pop, gen, mut, sciez, 0, 0, textArea, progressBar);
+							if (chooseFileReturnVal == JFileChooser.APPROVE_OPTION) {
+					            File file = fc.getSelectedFile();
+					            path = file.getPath();
+					        } 
+							alg.run(pop, gen, mut, path, 0, 0, textArea, progressBar);
 						}
 						catch(Exception e){
-							displayMessage("Nie znaleziono pliku.");
+							displayMessage("Problem z plikiem.");
 						}
 					}
 					panel_1.removeAll();
@@ -174,9 +187,11 @@ public class Window {
 		frame.getContentPane().add(btnUruchom);
 		frame.getContentPane().add(btnPowieksz);
 		frame.getContentPane().add(btnZapisz);
+		frame.getContentPane().add(btnWskazPlik);
 		btnUruchom.setEnabled(false);
 		btnPowieksz.setEnabled(false);
 		btnZapisz.setEnabled(false);
+		btnWskazPlik.setEnabled(false);
 		
 		progressBar = new JProgressBar(0,100);
 		progressBar.setBounds(148, 314, 615, 23);
@@ -239,7 +254,7 @@ public class Window {
 				if(rdbtnGenerujGraf.isSelected()) {						
 					wierz.setEnabled(true);
 					kraw.setEnabled(true);
-					sciezka.setEnabled(false);
+					btnWskazPlik.setEnabled(false);
 					btnUruchom.setEnabled(true);
 				} else {
 					wierz.setEnabled(false);
@@ -254,12 +269,12 @@ public class Window {
 		rdbtnWczytajZPliku.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(rdbtnWczytajZPliku.isSelected()) {						
-					sciezka.setEnabled(true);
 					wierz.setEnabled(false);
 					kraw.setEnabled(false);
+					btnWskazPlik.setEnabled(true);
 					btnUruchom.setEnabled(true);
 				} else {		
-					sciezka.setEnabled(false);
+					btnWskazPlik.setEnabled(false);
 				}
 			}
 		});
@@ -290,10 +305,10 @@ public class Window {
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
 		
-		sciezka = new JTextField();
+		/*sciezka = new JTextField();
 		sciezka.setBounds(20, 272, 86, 20);
 		panel.add(sciezka);
 		sciezka.setColumns(10);
-		sciezka.setEnabled(false);		
+		sciezka.setEnabled(false);	*/	
 	}
 }
