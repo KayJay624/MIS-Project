@@ -11,9 +11,11 @@ import java.util.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 //import javax.xml.transform.Transformer;
+
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -24,7 +26,6 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -32,12 +33,15 @@ import edu.uci.ics.jung.graph.SparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Stroke;
+
 import javax.swing.JFrame;
+
 import org.apache.commons.collections15.Transformer;
 
 public class GenAlgorythm {
@@ -51,6 +55,7 @@ public class GenAlgorythm {
 		
 		if(path == "") {
 			this.genGraph(verNum, edgNum);
+			//writeToFile(edgNum);
 		}
 		else{
 			this.getGraph(path);	
@@ -182,16 +187,20 @@ public class GenAlgorythm {
     	System.out.println();
 	}
 	
-	public void displayGraph(int verNum, JPanel panel)
+	public void displayGraph(int _x, int _y, JPanel panel) //nie trza przekazywac liczby wierzcholkow, bo przeciez jest pole vertNum
 	{
-		Vertexx[] tab = new Vertexx[verNum];
+		int x, y; //rozmiary okienka
+		x = _x;
+		y = _y;
+		
+		Vertexx[] tab = new Vertexx[vertNum];
 		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
-		for(int i = 0; i < verNum; i++) {
+		for(int i = 0; i < vertNum; i++) {
 			Vertexx v = new Vertexx(i);
 			g.addVertex(v);
 			tab[i] = v;
 		}
-		for(int i = 0; i < verNum; i++) {
+		for(int i = 0; i < vertNum; i++) {
 			for(int j = 0; j <= i; j++) {
 				if(adjMatrix[i][j] == 1) {
 					Edgee e = new Edgee(i, j);
@@ -200,45 +209,49 @@ public class GenAlgorythm {
 			}
 		}
 		
-		// Transformer maps the vertex number to a vertex property
        Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
             public Paint transform(Vertexx i) {
             	int[] tab = population.get(0).chromosome.clone();
-            	//for(int j = 0; j < tab.length; j++) {
-            		if(tab[i.id] == 1) {
-            			return Color.GREEN;
-            		} else {
-            			return Color.RED;
-            		}
-            	//}
-                
+        		if(tab[i.id] == 1) {
+        			return Color.GREEN;
+        		} else {
+        			return Color.ORANGE;
+        		}              
             }
         };
 	
         Layout<Vertexx, Edgee> layout = new KKLayout(g);
-        layout.setSize(new Dimension(650,300)); 
+        layout.setSize(new Dimension(x, y)); 
         BasicVisualizationServer<Vertexx,Edgee> vv = new BasicVisualizationServer<Vertexx,Edgee>(layout);
-        vv.setPreferredSize(new Dimension(650,300)); 
+        vv.setPreferredSize(new Dimension(x, y)); 
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         vv.getRenderContext().setVertexFillPaintTransformer(vertexColor);
         vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
-        //vv.getRenderer().getVertexLabelRenderer().setC
 
-        panel.add(vv);
-        panel.revalidate();
-        //JFrame frame = new JFrame("Graph");
-        //frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        //frame.getContentPane().add(vv); 
-        //frame.pack();
-        //frame.setVisible(true);    
+        if (panel == null) {
+        	JFrame frame = new JFrame("Graf");
+        	frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        	frame.getContentPane().add(vv); 
+        	frame.pack();
+        	frame.setVisible(true);  
+            JPanel container = new JPanel();
+            container.add(vv);
+            JScrollPane jsp = new JScrollPane(container);
+            frame.add(jsp);
+        }
+        else {
+            panel.add(vv);
+            panel.revalidate();  	
+        } 
+        
+
 	}
-	
+
 	public void algNormal(int verNum) {
 		//this.genGraph(verNum, edgNum);
 		try {
 			this.getGraph("graf_500-500_.txt");
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		Vertexx[] tab = new Vertexx[verNum];

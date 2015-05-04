@@ -64,10 +64,11 @@ public class Window {
 	JPanel panel_1;
 	JProgressBar progressBar;
 	private JTextField textField;
+	
+	private GenAlgorythm alg;
 
-	/**
-	 * Launch the application.
-	 */
+	//---------------------------------------------------------
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -81,9 +82,6 @@ public class Window {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public Window() {
 		initialize();
 	}
@@ -95,22 +93,25 @@ public class Window {
 		 textArea.revalidate();
 	}
 	
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
 		frame = new JFrame("Problem maksymalnego zbioru niezależnego");
 		frame.setBounds(100, 100, 789, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		final JButton btnPowieksz = new JButton("Powiększ");
+		btnPowieksz.setBounds(630, 20, 134, 23);
+		btnPowieksz.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				alg.displayGraph(2000, 2000, null);
+			}
+		});
+		
 		final JButton btnUruchom = new JButton("Uruchom");
 		btnUruchom.setBounds(4, 314, 134, 23);
 		btnUruchom.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0) {//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
 				
-				//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
-				
-				GenAlgorythm alg = new GenAlgorythm();
+				alg = new GenAlgorythm();
 				try {
 					pop = Integer.parseInt(popul.getText());
 					if(pop < 1) {
@@ -134,11 +135,8 @@ public class Window {
 								wie = 1;
 							}
 							alg.run(pop, gen, mut, "", wie, kra, textArea, progressBar);
-							panel_1.removeAll();
-							alg.displayGraph(wie, panel_1);
-							panel_1.repaint();
 						}
-						catch(Exception e){
+						catch(Exception e) {
 							displayMessage("Należy wpisać liczby.");
 						}
 					} else if(rdbtnWczytajZPliku.isSelected()) {
@@ -146,24 +144,28 @@ public class Window {
 						try
 						{
 							alg.run(pop, gen, mut, sciez, 0, 0, textArea, progressBar);
-							panel_1.removeAll();
-							alg.displayGraph(8, panel_1);
-							panel_1.repaint();
 						}
 						catch(Exception e){
 							displayMessage("Nie znaleziono pliku.");
 						}
 					}
+					panel_1.removeAll();
+					alg.displayGraph(650, 300, panel_1);
+					btnPowieksz.setEnabled(true);
+					panel_1.repaint();
 					
-					//textPane.setText(alg.population.print());;
-				} catch (Exception e) {
+				} 
+				catch (Exception e) {
 					displayMessage("Należy wpisać liczby.");
 				} 				
 			}
 		});
+		
 		frame.getContentPane().setLayout(null);
 		frame.getContentPane().add(btnUruchom);
+		frame.getContentPane().add(btnPowieksz);
 		btnUruchom.setEnabled(false);
+		btnPowieksz.setEnabled(false);
 		
 		progressBar = new JProgressBar(0,100);
 		progressBar.setBounds(148, 314, 615, 23);
