@@ -48,16 +48,21 @@ public class GenAlgorythm {
 	private int iterations = 0;
 	private int k = 0;
 	private int vertNum = 0;
+	private int edgeNum = 0;
 	private int[][] adjMatrix;
 	public Population population;
 	
-	public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int verNum, int edgNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
+	public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int _vertNum, int _edgeNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
 		
 		if(path == "") {
-			this.genGraph(verNum, edgNum);
-			//writeToFile(edgNum);
+			vertNum = _vertNum;
+			if (_edgeNum > vertNum * (vertNum - 1) / 2 ) {
+				_edgeNum = vertNum * (vertNum - 1) / 2;
+			}
+			edgeNum = _edgeNum;
+			this.genGraph();
 		}
-		else{
+		else {
 			this.getGraph(path);	
 		}
 		
@@ -110,8 +115,6 @@ public class GenAlgorythm {
 				break;
 			}
 		}
-		
-
 	}
 	
 	private void getGraph(String path) throws FileNotFoundException {
@@ -139,39 +142,34 @@ public class GenAlgorythm {
 	       int j = Integer.parseInt(edges[1]) - 1;
 	       
 	       adjMatrix[i][j] = 1;
-	       adjMatrix[j][i] = 1; 	    	  
+	       adjMatrix[j][i] = 1; 
+	       edgeNum++;
 		}
+	   in.close();
 	}
 	
-	public void genGraph(int verNum, int edgNum) {
+	public void genGraph() {
 		Random rand = new Random();
-		adjMatrix = new int[verNum][verNum];
-		vertNum = verNum;
+		adjMatrix = new int[vertNum][vertNum];
 		
 		int n = 0; 	
-		for(int i = 0; i < verNum; i++) {
-			for(int j = 0; j < verNum; j++) {									
+		for(int i = 0; i < vertNum; i++) {
+			for(int j = 0; j < vertNum; j++) {									
 				adjMatrix[i][j] = 0;
 			}
 		}
-		
-		if(edgNum > (verNum * (verNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzcho³ki i milion krawedzi
-			edgNum = (verNum * (verNum -1))/2;  // Zreszta to i tak konieczne, bo wtedy while moglby trwac wiecznie
-		}
 			
-		while(n < edgNum) {
-			int i = rand.nextInt(verNum);
-			int j = rand.nextInt(verNum);
+		while(n < edgeNum) {
+			int i = rand.nextInt(vertNum);
+			int j = rand.nextInt(vertNum);
 				
 			if(i == j) {
 				adjMatrix[i][j] = 0;
 			} else if(adjMatrix[i][j] == 0) {
 				adjMatrix[i][j] = 1;
-				adjMatrix[j][i] = 1;
-					
+				adjMatrix[j][i] = 1;	
 				n++;
 			}
-			
 		}
 	}
 	
@@ -304,15 +302,15 @@ public class GenAlgorythm {
 	}
 	
 	 private String getDateTime() {
-	        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
+	        DateFormat dateFormat = new SimpleDateFormat("mmss");
 	        Date date = new Date();
 	        return dateFormat.format(date);
 	    }
 		
-		public void writeToFile(int edgNum) {
-			try {
-				String fileName = "graf_"+vertNum+"-"+edgNum+"_"+".txt";
-				PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+		public void writeToFile() {
+			try {           //data jest przydatna gdyby byly dwa grafy o takich samych rozmiarach, robi za id
+				String fileName = "/home/komp/graf_"+vertNum+"-"+edgeNum+"_"+getDateTime()+".txt"; //dostosowac sobie sciezke 
+				PrintWriter writer = new PrintWriter(fileName, "UTF-8"); 
 				for (int i = 0; i < vertNum; i++)
 				{
 					writer.write((i+1)+",");

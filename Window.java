@@ -106,6 +106,14 @@ public class Window {
 			}
 		});
 		
+		final JButton btnZapisz = new JButton("Zapisz graf");
+		btnZapisz.setBounds(630, 50, 134, 23);
+		btnZapisz.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				alg.writeToFile();
+			}
+		});
+		
 		final JButton btnUruchom = new JButton("Uruchom");
 		btnUruchom.setBounds(4, 314, 134, 23);
 		btnUruchom.addActionListener(new ActionListener() {
@@ -152,6 +160,7 @@ public class Window {
 					panel_1.removeAll();
 					alg.displayGraph(650, 300, panel_1);
 					btnPowieksz.setEnabled(true);
+					btnZapisz.setEnabled(true);
 					panel_1.repaint();
 					
 				} 
@@ -164,8 +173,10 @@ public class Window {
 		frame.getContentPane().setLayout(null);
 		frame.getContentPane().add(btnUruchom);
 		frame.getContentPane().add(btnPowieksz);
+		frame.getContentPane().add(btnZapisz);
 		btnUruchom.setEnabled(false);
 		btnPowieksz.setEnabled(false);
+		btnZapisz.setEnabled(false);
 		
 		progressBar = new JProgressBar(0,100);
 		progressBar.setBounds(148, 314, 615, 23);
