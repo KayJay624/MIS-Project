@@ -96,19 +96,11 @@ public class Window {
 	private void initialize() {
 		final JFileChooser fc = new JFileChooser();
 		
-<<<<<<< HEAD
 		frame = new JFrame("Problem maksymalnego zbioru niezale¿nego");
 		frame.setBounds(100, 100, 789, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		final JButton btnPowieksz = new JButton("Powiêksz");
-=======
-		frame = new JFrame("Problem maksymalnego zbioru niezaleÅ¼nego");
-		frame.setBounds(100, 100, 789, 520);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		final JButton btnPowieksz = new JButton("PowiÄ™ksz");
->>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 		btnPowieksz.setBounds(630, 20, 134, 23);
 		btnPowieksz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -124,13 +116,8 @@ public class Window {
 			}
 		});
 		
-<<<<<<< HEAD
 		final JButton btnWskazPlik = new JButton("Wska¿ plik");
-		btnWskazPlik.setBounds(25, 285, 90, 20);
-=======
-		final JButton btnWskazPlik = new JButton("WskaÅ¼ plik");
 		btnWskazPlik.setBounds(34, 285, 110, 20);
->>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 		btnWskazPlik.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				chooseFileReturnVal = fc.showOpenDialog(frame);
@@ -138,7 +125,7 @@ public class Window {
 		});
 		
 		final JButton btnUruchom = new JButton("Uruchom");
-		btnUruchom.setBounds(10, 320, 134, 23);
+		btnUruchom.setBounds(4, 314, 134, 23);
 		btnUruchom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
 				
@@ -168,11 +155,7 @@ public class Window {
 							alg.run(pop, gen, mut, "", wie, kra, textArea, progressBar);
 						}
 						catch(Exception e) {
-<<<<<<< HEAD
 							displayMessage("Nale¿y wpisaæ liczby.");
-=======
-							displayMessage("NaleÅ¼y wpisaÄ‡ liczby.");
->>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 						}
 					} else if(rdbtnWczytajZPliku.isSelected()) {
 						try
@@ -195,15 +178,10 @@ public class Window {
 					
 				} 
 				catch (Exception e) {
-<<<<<<< HEAD
 					displayMessage("Nale¿y wpisaæ liczby.");
-=======
-					displayMessage("NaleÅ¼y wpisaÄ‡ liczby.");
->>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 				} 				
 			}
 		});
-		
 		frame.getContentPane().setLayout(null);
 		frame.getContentPane().add(btnUruchom);
 		frame.getContentPane().add(btnPowieksz);
@@ -213,11 +191,8 @@ public class Window {
 		btnPowieksz.setEnabled(false);
 		btnZapisz.setEnabled(false);
 		btnWskazPlik.setEnabled(false);
-<<<<<<< HEAD
 		
 		
-=======
->>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 		
 		progressBar = new JProgressBar(0,100);
 		progressBar.setBounds(160, 320, 600, 23);
@@ -334,18 +309,10 @@ public class Window {
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
 		
-<<<<<<< HEAD
 		//sciezka = new JTextField();
 		//sciezka.setBounds(10, 270, 90, 20);
 		//panel.add(sciezka);
 		//sciezka.setColumns(10);
 		//sciezka.setEnabled(false);		
-=======
-		/*sciezka = new JTextField();
-		sciezka.setBounds(20, 272, 86, 20);
-		panel.add(sciezka);
-		sciezka.setColumns(10);
-		sciezka.setEnabled(false);	*/	
->>>>>>> f7dd37e141cee421d78c7001fd3e37c356821780
 	}
 }
