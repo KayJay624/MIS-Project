@@ -1,6 +1,5 @@
 package badania;
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.*;
@@ -13,14 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-//import javax.xml.transform.Transformer;
 
-
-
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -28,21 +20,8 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseGraph;
-import edu.uci.ics.jung.visualization.BasicVisualizationServer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Paint;
-import java.awt.Stroke;
-
-import javax.swing.JFrame;
 
 import org.apache.commons.collections15.Transformer;
 
@@ -54,8 +33,8 @@ public class GenAlgorythm {
 	public int[][] adjMatrix;
 	public Population population;
 	
-public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int _vertNum, int _edgeNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {
-		
+	public void run(int populationQuantity, double stopCon, double mutationProbability, String path, int _vertNum, int _edgeNum, JTextArea pane, JProgressBar pbar) throws FileNotFoundException {		
+		Date start_time = new Date();
 		if(path == "") {
 			vertNum = _vertNum;
 			if (_edgeNum > vertNum * (vertNum - 1) / 2 ) {
@@ -69,15 +48,11 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 		}
 		
 		//displayAdjMatrix();
-		//displayGraph(vertNum, pane);
-		//population.adjMatrix = adjMatrix;
+
 		population = new Population(populationQuantity, vertNum, adjMatrix);
 		
 		population.sort();
-		
-		
-		//pbar.setMinimum(0);
-		//pbar.setMaximum(maxGen);
+			
 		int gen = 0;
 		while(true) {
 			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
@@ -96,12 +71,10 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 			population.removeLast();
 			
 			population.print(pane, gen);
-			//population.print2(gen);
 			gen++;
-			//pbar.setValue(gen);
-			//pbar.revalidate();
-			//pbar.repaint();
+
 			population.print2(gen);
+			
 			int kk = population.get(0).fit;
 			if (kk > k)
 			{
@@ -112,11 +85,14 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 			{
 				iterations++;
 			}
-			if (iterations >= (stopCon * vertNum) || gen >= 5 * vertNum)
+			if (iterations >= (stopCon * vertNum) || gen >= 10 * vertNum)
 			{
 				break;
 			}
 		}
+		Date stop_time = new Date();
+		double etime = (stop_time.getTime() - start_time.getTime())/1000.;
+	      pane.append("\nElapsed Time = " + etime + " seconds\n");
 	}
 	
 	private void getGraph(String path) throws FileNotFoundException {
@@ -146,12 +122,45 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 	       adjMatrix[i][j] = 1;
 	       adjMatrix[j][i] = 1; 	    	  
 		}
+	   in.close();
 	}
 	
 	public void genGraph() {
 		Random rand = new Random();
 		adjMatrix = new int[vertNum][vertNum];
-		vertNum = vertNum;
+		
+		int n = 0; 	
+		for(int i = 0; i < vertNum; i++) {
+			for(int j = 0; j < vertNum; j++) {									
+				adjMatrix[i][j] = 0;
+			}
+		}
+		
+		if(edgeNum > (vertNum * (vertNum -1))/2) { // Zeby nikt nie robil dowcipow typu dwa wierzcho³ki i milion krawedzi
+			edgeNum = (vertNum * (vertNum -1))/2;  // Zreszta to i tak konieczne, bo wtedy while moglby trwac wiecznie
+		}
+			
+		while(n < edgeNum) {
+			int i = rand.nextInt(vertNum);
+			int j = rand.nextInt(vertNum);
+				
+			if(i == j) {
+				adjMatrix[i][j] = 0;
+			} else if(adjMatrix[i][j] == 0) {
+				adjMatrix[i][j] = 1;
+				adjMatrix[j][i] = 1;
+					
+				n++;
+			}
+			
+		}
+	}
+	
+	public void genGraph(int _v, int _e) {
+		Random rand = new Random();
+		vertNum = _v;
+		edgeNum = _e;
+		adjMatrix = new int[vertNum][vertNum];
 		
 		int n = 0; 	
 		for(int i = 0; i < vertNum; i++) {
@@ -225,11 +234,11 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
             }
         };
 	
-        Layout<Vertexx, Edgee> layout = new KKLayout(g);
+        Layout<Vertexx, Edgee> layout = new KKLayout<Vertexx, Edgee>(g);
         layout.setSize(new Dimension(x, y)); 
         BasicVisualizationServer<Vertexx,Edgee> vv = new BasicVisualizationServer<Vertexx,Edgee>(layout);
         vv.setPreferredSize(new Dimension(x, y)); 
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Vertexx>());
         vv.getRenderContext().setVertexFillPaintTransformer(vertexColor);
         vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
@@ -257,9 +266,9 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 		try {
 			this.getGraph("graf_500.txt");
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
 		verNum = adjMatrix[0].length;
 		Vertexx[] tab = new Vertexx[verNum];
 		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
@@ -292,17 +301,11 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 			 
 			 if(g.containsVertex(lW.get(v))) {
 				 S.addVertex(lW.get(v));
-				 //System.out.println("Dodalem do S wierzcholek:" + lW.get(v));
-				 
-				 Collection<Edgee> cK = g.getIncidentEdges(lW.get(v));
-				 LinkedList<Edgee> lK = new LinkedList<Edgee>(cK);
-				 //System.out.println(lK.size());
-
+				 				
 				 Collection<Vertexx> cS = g.getNeighbors(lW.get(v));
 				 LinkedList<Vertexx> lS = new LinkedList<Vertexx>(cS);
 				 for(int i = 0; i < lS.size(); i++) {
 					 g.removeVertex(lS.get(i));
-					 //System.out.println("Usunolem sasiada :" + lS.get(i));
 				 }
 				 
 				 g.removeVertex(lW.get(v));
@@ -335,31 +338,33 @@ public void run(int populationQuantity, double stopCon, double mutationProbabili
 		System.out.println("\n" +S.getVertexCount());
 	}
 	
-	 private String getDateTime() {
-	        DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
-	        Date date = new Date();
-	        return dateFormat.format(date);
-	    }
+	private String getDateTime() {
+		DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+		Date date = new Date();
+		return dateFormat.format(date);
+	}
 		
-		public void writeToFile() {
-			try {
-				String fileName = "graf_"+vertNum+"-"+edgeNum+"_"+getDateTime()+".txt";
-				PrintWriter writer = new PrintWriter(fileName, "UTF-8");
-				for (int i = 0; i < vertNum; i++)
-				{
-					writer.write((i+1)+",");
-				}
-				writer.write("\n");
-				for(int i = 0; i < vertNum; i++) {
-					for(int j = 0; j <= i; j++) {
-						if(adjMatrix[i][j] == 1) {
-							writer.write((i+1)+","+(j+1)+"\n");
-						}
+	public void writeToFile() {
+		try {
+			String fileName = "graf_"+vertNum+"-"+edgeNum+"_"+getDateTime()+".txt";
+			PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+			
+			for (int i = 0; i < vertNum; i++) {
+				writer.write((i+1)+",");
+			}
+			
+			writer.write("\n");
+			for(int i = 0; i < vertNum; i++) {
+				for(int j = 0; j <= i; j++) {
+					if(adjMatrix[i][j] == 1) {
+						writer.write((i+1)+","+(j+1)+"\n");
 					}
 				}
-				writer.close();
 			}
-			catch(Exception e) {e.printStackTrace();}
+			
+			writer.close();
 		}
+		catch(Exception e) {e.printStackTrace();}
+	}
 	
 }

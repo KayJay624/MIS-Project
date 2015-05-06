@@ -50,7 +50,8 @@ public class Chromosome {
 	
 	public void fitness(int [][] adjMatrix) {
 		int sum = chromSum();
-		int penalty = length * vectorXvector(vectorXmatrix(this.chromosome, adjMatrix), this.chromosome);
+		int penalty = length * vectorXvector(multiply(this.chromosome, adjMatrix),this.chromosome);
+		//vectorXvector(vectorXmatrix(this.chromosome, adjMatrix), this.chromosome);
 		
 		fit = sum - penalty;
 	}
@@ -93,5 +94,25 @@ public class Chromosome {
 		 return wynik;
 	 }
 	
-
+	// matrix-vector multiplication (y = A * x)
+    private int[] multiply(int[][] A, int[] x) {
+        int m = A.length;
+        int n = A[0].length;      
+        int[] y = new int[m];
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                y[i] += (A[i][j] * x[j]);
+        return y;
+    }
+    
+    // vector-matrix multiplication (y = x^T A)
+    private int[] multiply(int[] x, int[][] A) {
+        int m = A.length;
+        int n = A[0].length;
+        int[] y = new int[n];
+        for (int j = 0; j < n; j++)
+            for (int i = 0; i < m; i++)
+                y[j] += (A[i][j] * x[i]);
+        return y;
+    }
 }
