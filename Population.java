@@ -58,9 +58,9 @@ public class Population {
 	}
 
 	
-	public String print3(int gen) {
+	public String print3() {
 		String wynik = "";
-		wynik += "Generacja: " + gen + "\n";
+		//wynik += "Generacja: " + gen + "\n";
 		wynik += "nr.   fitness:   chromosom: \n";
 		for(int j = 0 ; j < population.size(); j++) {
    		  	wynik += (j+1 + ".    " + population.get(j).fit + "          ");
@@ -94,7 +94,9 @@ public class Population {
 	private class chromComp implements Comparator<Chromosome>{
 		
 	    public int compare(Chromosome e1, Chromosome e2) {
-	        if( e1.fit < e2.fit) {
+	        if(e1.fit == e2.fit) {
+	        	return 0;
+	        } else if( e1.fit < e2.fit) {
 	            return 1;
 	        } else {
 	            return -1;

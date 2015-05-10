@@ -27,9 +27,12 @@ public class Chromosome {
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
-			if(i < (this.length / 2)) {
-				newChrom.chromosome[i] = other.chromosome[i];				  
-			} 
+			//if(i < (this.length / 2)) {
+			//	newChrom.chromosome[i] = other.chromosome[i];				  
+			//} 
+			if(i % 2 == 0) {
+				newChrom.chromosome[i] = other.chromosome[i];
+			}
 			  
 		}
 		

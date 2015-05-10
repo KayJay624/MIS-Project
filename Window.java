@@ -52,7 +52,7 @@ public class Window {
 	private JTextField mutat;
 	
 	int pop;
-	double gen;
+	int gen;
 	double mut;
 	private JTextField wierz;
 	private JTextField kraw;
@@ -66,6 +66,9 @@ public class Window {
 	private JTextField textField;
 	
 	private GenAlgorythm alg;
+	private JButton btnZapisz;
+	private JButton btnPowieksz;
+	private JScrollPane scrollPane_1;
 
 	//---------------------------------------------------------
 	
@@ -97,24 +100,8 @@ public class Window {
 		final JFileChooser fc = new JFileChooser();
 		
 		frame = new JFrame("Problem maksymalnego zbioru niezale¿nego");
-		frame.setBounds(100, 100, 789, 520);
+		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		final JButton btnPowieksz = new JButton("Powiêksz");
-		btnPowieksz.setBounds(630, 20, 134, 23);
-		btnPowieksz.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				alg.displayGraph(2000, 2000, null);
-			}
-		});
-		
-		final JButton btnZapisz = new JButton("Zapisz");
-		btnZapisz.setBounds(630, 50, 134, 23);
-		btnZapisz.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				alg.writeToFile();
-			}
-		});
 		
 		final JButton btnWskazPlik = new JButton("Wska¿ plik");
 		btnWskazPlik.setBounds(34, 285, 110, 20);
@@ -125,7 +112,7 @@ public class Window {
 		});
 		
 		final JButton btnUruchom = new JButton("Uruchom");
-		btnUruchom.setBounds(4, 314, 134, 23);
+		btnUruchom.setBounds(5, 400, 155, 25);
 		btnUruchom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
 				
@@ -135,7 +122,7 @@ public class Window {
 					if(pop < 1) {
 						pop = 1;
 					}
-					gen = Double.parseDouble(gener.getText());
+					gen = Integer.parseInt(gener.getText());
 					mut = Double.parseDouble(mutat.getText());
 					if(mut < 0) {
 						mut = 0;
@@ -156,6 +143,7 @@ public class Window {
 						}
 						catch(Exception e) {
 							displayMessage("Nale¿y wpisaæ liczby.");
+							e.printStackTrace();;
 						}
 					} else if(rdbtnWczytajZPliku.isSelected()) {
 						try
@@ -171,7 +159,7 @@ public class Window {
 						}
 					}
 					panel_1.removeAll();
-					alg.displayGraph(650, 300, panel_1);
+					alg.displayGraph(620, 380, panel_1);
 					btnPowieksz.setEnabled(true);
 					btnZapisz.setEnabled(true);
 					panel_1.repaint();
@@ -184,41 +172,34 @@ public class Window {
 		});
 		frame.getContentPane().setLayout(null);
 		frame.getContentPane().add(btnUruchom);
-		frame.getContentPane().add(btnPowieksz);
-		frame.getContentPane().add(btnZapisz);
 		frame.getContentPane().add(btnWskazPlik);
 		btnUruchom.setEnabled(false);
-		btnPowieksz.setEnabled(false);
-		btnZapisz.setEnabled(false);
 		btnWskazPlik.setEnabled(false);
 		
 		
 		
 		progressBar = new JProgressBar(0,100);
-		progressBar.setBounds(160, 320, 600, 23);
+		progressBar.setBounds(170, 400, 610, 25);
 		progressBar.setValue(0);
 		progressBar.setStringPainted(true);
 		frame.getContentPane().add(progressBar);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(4, 349, 759, 121);
-		frame.getContentPane().add(scrollPane);
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(5, 430, 775, 125);
+		frame.getContentPane().add(scrollPane_1);
 		
 		textArea = new JTextArea(5,20);
-		//textArea.setColumns(2);
-		//textArea.setRows(5);
-		//textArea.setMargin(new Insets(5,5,5,5));
-		scrollPane.setViewportView(textArea);
+		scrollPane_1.setViewportView(textArea);
 		//textArea.setCaret((Caret) new Font("Arial", Font.PLAIN, 12));
 		//textArea.setLineWrap(true);
 		textArea.setEditable(false);
 		
 		panel_1 = new JPanel();
-		panel_1.setBounds(160, 10, 600, 300);
+		panel_1.setBounds(160, 10, 620, 380);
 		frame.getContentPane().add(panel_1);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(12, 12, 150, 300);
+		panel.setBounds(10, 10, 150, 380);
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
@@ -308,6 +289,26 @@ public class Window {
 		panel.add(kraw);
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
+		
+		btnPowieksz = new JButton("Powiêksz");
+		btnPowieksz.setBounds(10, 320, 130, 20);
+		panel.add(btnPowieksz);
+		btnPowieksz.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				alg.displayGraph(1000, 1000, null);
+			}
+		});
+		btnPowieksz.setEnabled(false);
+		
+		btnZapisz = new JButton("Zapisz");
+		btnZapisz.setBounds(10, 350, 130, 20);
+		panel.add(btnZapisz);
+		btnZapisz.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				alg.writeToFile();
+			}
+		});
+		btnZapisz.setEnabled(false);
 		
 		//sciezka = new JTextField();
 		//sciezka.setBounds(10, 270, 90, 20);

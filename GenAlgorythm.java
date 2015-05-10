@@ -52,10 +52,13 @@ public class GenAlgorythm {
 		population = new Population(populationQuantity, vertNum, adjMatrix);
 		
 		population.sort();
+		
+		Random rand = new Random();
+		int childNumb = populationQuantity;
 			
 		int gen = 0;
 		while(true) {
-			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
+			/*Chromosome newChild1 =  population.get(0).crossover(population.get(1));
 			newChild1.mutate(mutationProbability);	
 			newChild1.fitness(adjMatrix);
 			population.add(newChild1);
@@ -65,10 +68,34 @@ public class GenAlgorythm {
 			newChild2.fitness(adjMatrix);
 			population.add(newChild2);
 			
+			Chromosome newChild3 =  population.get(0).crossover(population.get(2));
+			newChild3.mutate(mutationProbability);	
+			newChild3.fitness(adjMatrix);
+			population.add(newChild3);
+			
+			Chromosome newChild4 =  population.get(2).crossover(population.get(1));
+			newChild4.mutate(mutationProbability);
+			newChild4.fitness(adjMatrix);
+			population.add(newChild4);
+			*/
+			
+			Chromosome[] childTab = new Chromosome[childNumb];
+			for(int i = 0; i < childNumb; i++) {
+				int p = rand.nextInt(populationQuantity);
+				childTab[i] = population.get(0).crossover(population.get(p));
+				childTab[i].mutate(mutationProbability);
+				childTab[i].fitness(adjMatrix);
+				population.add(childTab[i]);
+			}
 			population.sort();
 			
-			population.removeLast();
-			population.removeLast();
+			for(int i = 0; i < childNumb; i++) {
+				population.removeLast();
+			}
+			//population.removeLast();
+			//population.removeLast();
+			//population.removeLast();
+			//population.removeLast();
 			
 			population.print(pane, gen);
 			gen++;
