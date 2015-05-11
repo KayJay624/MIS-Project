@@ -1,52 +1,40 @@
 package badania;
 
 import java.awt.EventQueue;
-import java.io.*;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
-
-import java.awt.BorderLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.FlowLayout;
-
-import javax.swing.BoxLayout;
-import javax.swing.JTextPane;
+import java.awt.Dimension;
+import java.awt.Paint;
 import javax.swing.JScrollPane;
-
 import java.awt.Color;
-
-import javax.swing.JInternalFrame;
-
-import java.awt.Component;
-
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
-
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-import javax.swing.text.Caret;
-
-import java.awt.Font;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JToggleButton;
-import javax.swing.Box;
 import javax.swing.JRadioButton;
-
+import org.apache.commons.collections15.Transformer;
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class Window {
 
 	private JFrame frame;
-	private JTextArea textArea;
+	static JTextArea textArea;
 	private JTextField popul;
 	private JTextField gener;
 	private JTextField mutat;
@@ -63,12 +51,21 @@ public class Window {
 	
 	JPanel panel_1;
 	JProgressBar progressBar;
-	private JTextField textField;
 	
 	private GenAlgorythm alg;
 	private JButton btnZapisz;
 	private JButton btnPowieksz;
 	private JScrollPane scrollPane_1;
+	
+	//zeby latwiej bylo poprawiac wysypane polskie znaki
+	private final String s1 = "Macierz sÄ…siedztwa";
+	private final String s2 = "Problem maksymalnego zbioru niezaleÅ¼nego";
+	private final String s3 = "WskaÅ¼ plik";
+	private final String s4 = "NaleÅ¼y wpisaÄ‡ liczby.";
+	private final String s5 = "LiczebnoÅ›Ä‡ populacji";
+	private final String s6 = "L. wierzchoÅ‚kÃ³w";
+	private final String s7 = "L. krawÄ™dzi";
+	private final String s8 = "PowiÄ™ksz";
 
 	//---------------------------------------------------------
 	
@@ -88,22 +85,116 @@ public class Window {
 	public Window() {
 		initialize();
 	}
+	
+	public void displayGraph(int x, int y, int[][] adjMatrix, Population population, boolean big)
+	{	
+		int vertNum = adjMatrix.length;
+		Vertexx[] tab = new Vertexx[vertNum];
+		Graph<Vertexx, Edgee> g = new SparseMultigraph<Vertexx, Edgee>();
+		for(int i = 0; i < vertNum; i++) {
+			Vertexx v = new Vertexx(i);
+			g.addVertex(v);
+			tab[i] = v;
+		}
+		for(int i = 0; i < vertNum; i++) {
+			for(int j = 0; j <= i; j++) {
+				if(adjMatrix[i][j] == 1) {
+					Edgee e = new Edgee(i, j);
+					g.addEdge(e, tab[i], tab[j]);	
+				}
+			}
+		}
+		
+       Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
+            public Paint transform(Vertexx i) {
+            	int[] tab = population.get(0).chromosome.clone();
+        		if(tab[i.id] == 1) {
+        			return Color.GREEN;
+        		} else {
+        			return Color.ORANGE;
+        		}              
+            }
+        };
+	
+        Layout<Vertexx, Edgee> layout = new KKLayout<Vertexx, Edgee>(g);
+        layout.setSize(new Dimension(x, y)); 
+        BasicVisualizationServer<Vertexx,Edgee> vv = new BasicVisualizationServer<Vertexx,Edgee>(layout);
+        vv.setPreferredSize(new Dimension(x, y)); 
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Vertexx>());
+        vv.getRenderContext().setVertexFillPaintTransformer(vertexColor);
+        vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
-	public void displayMessage(String s)
+        if (big) {
+        	JFrame frame = new JFrame("Graf");
+        	frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        	frame.getContentPane().add(vv); 
+        	frame.pack();
+        	frame.setVisible(true);  
+            JPanel container = new JPanel();
+            container.add(vv);
+            JScrollPane jsp = new JScrollPane(container);
+            frame.add(jsp);
+        }
+        else {
+            panel_1.add(vv);
+            panel_1.revalidate();  	
+        } 
+	}
+
+	private void displayAdjMatrix(int[][] adjMatrix) {
+		System.out.println(s1);
+		for(int i = 0; i < adjMatrix.length; i++) {		  
+	    	for(int j = 0; j < adjMatrix.length; j++) {
+				System.out.print(adjMatrix[i][j] + "  ");
+			}
+	    	System.out.println();
+		}
+    	System.out.println();
+    	System.out.println();
+	}
+	
+	public static void displayMessage(String s)
 	{
 		 textArea.append(s+"\n");
 		 textArea.repaint();
 		 textArea.revalidate();
 	}
 	
+	public static String getDateTime() {
+		DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+		Date date = new Date();
+		return dateFormat.format(date);
+	}
+		
+	public static void writeToFile(int[][] adjMatrix, int edgeNum) {
+		try {
+			String fileName = "graf_"+adjMatrix.length+"-"+edgeNum+"_"+getDateTime()+".txt";
+			PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+			
+			for (int i = 0; i < adjMatrix.length; i++) {
+				writer.write((i+1)+",");
+			}
+			writer.write("\n");
+			for(int i = 0; i < adjMatrix.length; i++) {
+				for(int j = 0; j <= i; j++) {
+					if(adjMatrix[i][j] == 1) {
+						writer.write((i+1)+","+(j+1)+"\n");
+					}
+				}
+			}
+			writer.close();
+		}
+		catch(Exception e) {e.printStackTrace();}
+	}
+	
 	private void initialize() {
 		final JFileChooser fc = new JFileChooser();
 		
-		frame = new JFrame("Problem maksymalnego zbioru niezale¿nego");
+		frame = new JFrame(s2);
 		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		final JButton btnWskazPlik = new JButton("Wska¿ plik");
+		final JButton btnWskazPlik = new JButton(s3);
 		btnWskazPlik.setBounds(34, 285, 110, 20);
 		btnWskazPlik.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -114,7 +205,7 @@ public class Window {
 		final JButton btnUruchom = new JButton("Uruchom");
 		btnUruchom.setBounds(5, 400, 155, 25);
 		btnUruchom.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {//gen to jest warunek stopu, nie zmieniam nazwy zmiennej
+			public void actionPerformed(ActionEvent arg0) {
 				
 				alg = new GenAlgorythm();
 				try {
@@ -133,40 +224,43 @@ public class Window {
 					progressBar.setValue(0);
 					textArea.setText("");
 					if(rdbtnGenerujGraf.isSelected()) {		
-						try{
+						try {
 							kra = Integer.parseInt(kraw.getText());
 							wie = Integer.parseInt(wierz.getText());
 							if(wie < 0) {
 								wie = 1;
 							}
-							alg.run(pop, gen, mut, "", wie, kra, textArea, progressBar);
+							alg.genGraph(kra, wie);
 						}
 						catch(Exception e) {
-							displayMessage("Nale¿y wpisaæ liczby.");
+							displayMessage(s4);
 							e.printStackTrace();;
 						}
-					} else if(rdbtnWczytajZPliku.isSelected()) {
-						try
-						{
+					} 
+					else if(rdbtnWczytajZPliku.isSelected()) {
+						try {
 							if (chooseFileReturnVal == JFileChooser.APPROVE_OPTION) {
 					            File file = fc.getSelectedFile();
 					            path = file.getPath();
 					        } 
-							alg.run(pop, gen, mut, path, 0, 0, textArea, progressBar);
+							alg.getGraph(path);
 						}
 						catch(Exception e){
 							displayMessage("Problem z plikiem.");
 						}
 					}
+					alg.run(pop, gen, mut);
+					displayMessage("Elapsed time: " + alg.getEtime() + " s");
+					displayAdjMatrix(alg.getAdjMatrix());
 					panel_1.removeAll();
-					alg.displayGraph(620, 380, panel_1);
+					displayGraph(620, 380, alg.getAdjMatrix(), alg.getPopulation(), false);
 					btnPowieksz.setEnabled(true);
 					btnZapisz.setEnabled(true);
 					panel_1.repaint();
 					
 				} 
 				catch (Exception e) {
-					displayMessage("Nale¿y wpisaæ liczby.");
+					displayMessage(s4);
 				} 				
 			}
 		});
@@ -175,9 +269,7 @@ public class Window {
 		frame.getContentPane().add(btnWskazPlik);
 		btnUruchom.setEnabled(false);
 		btnWskazPlik.setEnabled(false);
-		
-		
-		
+
 		progressBar = new JProgressBar(0,100);
 		progressBar.setBounds(170, 400, 610, 25);
 		progressBar.setValue(0);
@@ -190,8 +282,6 @@ public class Window {
 		
 		textArea = new JTextArea(5,20);
 		scrollPane_1.setViewportView(textArea);
-		//textArea.setCaret((Caret) new Font("Arial", Font.PLAIN, 12));
-		//textArea.setLineWrap(true);
 		textArea.setEditable(false);
 		
 		panel_1 = new JPanel();
@@ -209,7 +299,7 @@ public class Window {
 		panel.add(popul);
 		popul.setColumns(10);
 		
-		JLabel lblLiczebnoPopulacji = new JLabel("Liczebno\u015B\u0107 populacji");
+		JLabel lblLiczebnoPopulacji = new JLabel(s5);
 		lblLiczebnoPopulacji.setBounds(0, 5, 150, 15);
 		panel.add(lblLiczebnoPopulacji);
 		
@@ -241,7 +331,8 @@ public class Window {
 					kraw.setEnabled(true);
 					btnWskazPlik.setEnabled(false);
 					btnUruchom.setEnabled(true);
-				} else {
+				} 
+				else {
 					wierz.setEnabled(false);
 					kraw.setEnabled(false);
 				}
@@ -258,7 +349,8 @@ public class Window {
 					kraw.setEnabled(false);
 					btnWskazPlik.setEnabled(true);
 					btnUruchom.setEnabled(true);
-				} else {		
+				} 
+				else {		
 					btnWskazPlik.setEnabled(false);
 				}
 			}
@@ -270,7 +362,7 @@ public class Window {
 	    group.add(rdbtnGenerujGraf);
 	    group.add(rdbtnWczytajZPliku);
 		
-		JLabel lblIlocWierzchokow = new JLabel("Liczba wierzcho³ków");
+		JLabel lblIlocWierzchokow = new JLabel(s6);
 		lblIlocWierzchokow.setBounds(10, 160, 150, 15);
 		panel.add(lblIlocWierzchokow);
 		
@@ -280,7 +372,7 @@ public class Window {
 		wierz.setColumns(10);
 		wierz.setEnabled(false);
 		
-		JLabel lblIloKrawdzi = new JLabel("Liczba krawêdzi");
+		JLabel lblIloKrawdzi = new JLabel(s7);
 		lblIloKrawdzi.setBounds(10, 200, 134, 14);
 		panel.add(lblIloKrawdzi);
 		
@@ -290,12 +382,12 @@ public class Window {
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
 		
-		btnPowieksz = new JButton("Powiêksz");
+		btnPowieksz = new JButton(s8);
 		btnPowieksz.setBounds(10, 320, 130, 20);
 		panel.add(btnPowieksz);
 		btnPowieksz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				alg.displayGraph(1000, 1000, null);
+				displayGraph(2000, 2000, alg.getAdjMatrix(), alg.getPopulation(), true);
 			}
 		});
 		btnPowieksz.setEnabled(false);
@@ -305,15 +397,9 @@ public class Window {
 		panel.add(btnZapisz);
 		btnZapisz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				alg.writeToFile();
+				writeToFile(alg.getAdjMatrix(), alg.getEdgeNum());
 			}
 		});
-		btnZapisz.setEnabled(false);
-		
-		//sciezka = new JTextField();
-		//sciezka.setBounds(10, 270, 90, 20);
-		//panel.add(sciezka);
-		//sciezka.setColumns(10);
-		//sciezka.setEnabled(false);		
+		btnZapisz.setEnabled(false);	
 	}
 }

@@ -32,10 +32,8 @@ public class Chromosome {
 			//} 
 			if(i % 2 == 0) {
 				newChrom.chromosome[i] = other.chromosome[i];
-			}
-			  
+			}	  
 		}
-		
 		return newChrom;
 	}
 	
