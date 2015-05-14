@@ -3,6 +3,7 @@ package badania;
 import java.io.*;
 import java.util.*;
 
+
 public class GenAlgorythm {
 	private double etime;
 	private int iterations = 0;
@@ -12,7 +13,7 @@ public class GenAlgorythm {
 	public int[][] adjMatrix;
 	public Population population;
 	
-	public void run(int populationQuantity, double stopCon, double mutationProbability) {	
+	public void run(int populationQuantity, double stopCon, double mutationProbability, String crossMethod) {	
 		Date start_time = new Date();
 		population = new Population(populationQuantity, vertNum, adjMatrix);
 		population.sort();
@@ -24,19 +25,32 @@ public class GenAlgorythm {
 		while(true) {			
 			Chromosome[] childTab = new Chromosome[childNumb];
 			for(int i = 0; i < childNumb; i++) {
-				int p = rand.nextInt(populationQuantity);
-				childTab[i] = population.get(0).crossover(population.get(p));
+				int p = rand.nextInt(populationQuantity-1)+1;
+				
+				switch (crossMethod) {
+					case "Jednopunktowy" : childTab[i] = population.get(0).jednopunktowyCrossover(population.get(p)); 
+									       break;
+					case "Jednorodny" : childTab[i] = population.get(0).jednorodnyCrossover(population.get(p));
+										break;
+					default : childTab[i] = population.get(0).wazonyCrossover(population.get(p));
+							  break;
+				}
+				childTab[i] = population.get(0).wazonyCrossover(population.get(p));
 				childTab[i].mutate(mutationProbability);
 				childTab[i].fitness(adjMatrix);
-				population.add(childTab[i]);
+				//if(!childTab[i].isSame(population.get(0))) {
+					population.add(childTab[i]);
+				//}
 			}
 			population.sort();
 			
 			for(int i = 0; i < childNumb; i++) {
-				population.removeLast();
+				if(population.population.size() > populationQuantity)
+					population.removeLast();
 			}
 			
 			population.print(gen);
+			population.print2(gen);
 			gen++;
 			
 			int kk = population.get(0).fit;
@@ -51,6 +65,7 @@ public class GenAlgorythm {
 				break;
 			}
 		}
+		//population.print(gen);
 		Date stop_time = new Date();
 		etime = (stop_time.getTime() - start_time.getTime())/1000.;
 	}

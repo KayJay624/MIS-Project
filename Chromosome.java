@@ -23,6 +23,7 @@ public class Chromosome {
 	}
 
 	public Chromosome crossover(Chromosome other) {
+		Random rand = new Random();
 		Chromosome newChrom = new Chromosome(length);
 		newChrom.chromosome = this.chromosome.clone();
 		 
@@ -30,9 +31,48 @@ public class Chromosome {
 			//if(i < (this.length / 2)) {
 			//	newChrom.chromosome[i] = other.chromosome[i];				  
 			//} 
-			if(i % 2 == 0) {
+			if(rand.nextBoolean()) {
 				newChrom.chromosome[i] = other.chromosome[i];
 			}	  
+		}
+		return newChrom;
+	}
+	
+	public Chromosome jednopunktowyCrossover(Chromosome other) {
+		Chromosome newChrom = new Chromosome(length);
+		newChrom.chromosome = this.chromosome.clone();
+		 
+		for(int i = 0; i < this.length; i++) {
+			if(i < (this.length / 2)) {
+				newChrom.chromosome[i] = other.chromosome[i];				  
+			} 			 
+		}
+		return newChrom;
+	}
+	
+	public Chromosome jednorodnyCrossover(Chromosome other) {
+		Random rand = new Random();
+		Chromosome newChrom = new Chromosome(length);
+		newChrom.chromosome = this.chromosome.clone();
+		 
+		for(int i = 0; i < this.length; i++) {
+			if(rand.nextBoolean()) {
+				newChrom.chromosome[i] = other.chromosome[i];
+			}	  
+		}
+		return newChrom;
+	}
+	
+	public Chromosome wazonyCrossover(Chromosome other) {
+		Random rand = new Random();
+		Chromosome newChrom = new Chromosome(length);
+		 
+		for(int i = 0; i < this.length; i++) {
+			if(rand.nextDouble() <= (this.fit/(this.fit + other.fit))) {
+				newChrom.chromosome[i] = this.chromosome[i];
+			} else {
+				newChrom.chromosome[i] = other.chromosome[i];
+			}
 		}
 		return newChrom;
 	}
@@ -115,5 +155,13 @@ public class Chromosome {
             for (int i = 0; i < m; i++)
                 y[j] += (A[i][j] * x[i]);
         return y;
+    }
+    public boolean isSame(Chromosome x) {
+    	for(int i = 0; i < x.chromosome.length; i++){
+    		if(chromosome[i] != x.chromosome[i]){
+    			return false;
+    		}
+    	}
+    	return true;
     }
 }

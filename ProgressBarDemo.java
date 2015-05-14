@@ -6,7 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import java.beans.*;
-import java.io.FileNotFoundException;
+import java.util.Date;
 import java.util.Random;
  
 public class ProgressBarDemo extends JPanel
@@ -17,55 +17,64 @@ public class ProgressBarDemo extends JPanel
     private JButton startButton;
     private JTextArea taskOutput;
     private Task task;
-    GenAlgorythm alg;
-    Population population;
-    private int[][] adjMatrix;
-    int gen;
- 
+    private Population population;
+    private int gen = 0;
+    private double etime;
+    
     class Task extends SwingWorker<Void, Void> {
         /*
          * Main task. Executed in background thread.
          */
-    	
         @Override
-        public Void doInBackground() {         
+        public Void doInBackground() {
             int progress = 0;
             //Initialize progress property.
             setProgress(0);
+            Date start_time = new Date();
             GenAlgorythm alg = new GenAlgorythm();
             alg.genGraph(500, 1000);
-            adjMatrix = alg.adjMatrix;
-            population = new Population(5, 500, adjMatrix);
-    		
+            int [][] adjMatrix = alg.adjMatrix.clone();
+    		population = new Population(5, 500, adjMatrix);
     		population.sort();
     		
-    		
+    		Random rand = new Random();
+    		int populationQuantity = 5;
+    		int childNumb = populationQuantity;
+    			
     		gen = 0;
-    		while(gen < 400) {
-    			Chromosome newChild1 =  population.get(0).crossover(population.get(1));
-    			newChild1.mutate(0.1);	
-    			newChild1.fitness(adjMatrix);
-    			population.add(newChild1);
-    			
-    			Chromosome newChild2 =  population.get(1).crossover(population.get(0));
-    			newChild2.mutate(0.1);
-    			newChild2.fitness(adjMatrix);
-    			population.add(newChild2);
-    			
+    		while(gen < 2000) {			
+    			Chromosome[] childTab = new Chromosome[childNumb];
+    			for(int i = 0; i < childNumb; i++) {
+    				int p = rand.nextInt(populationQuantity-1)+1;
+    				childTab[i] = population.get(0).wazonyCrossover(population.get(p));
+    				childTab[i].mutate(0.1);
+    				childTab[i].fitness(adjMatrix);
+    				//if(!childTab[i].isSame(population.get(0))) {
+    					population.add(childTab[i]);
+    				//}
+    			}
     			population.sort();
     			
-    			population.removeLast();
-    			population.removeLast();
+    			for(int i = 0; i < childNumb; i++) {
+    				if(population.population.size() > populationQuantity)
+    					population.removeLast();
+    			}
     			
-
     			gen++;
     			progress++;
-    			setProgress(progress/4);
-
-    		}
-            //progress += random.nextInt(10);
-            
-            return null;
+    			
+    			//try {
+                    //Thread.sleep(1);
+              //  } catch (InterruptedException ignore) {}
+    		
+    		//population.print(gen);
+    		
+    	
+                setProgress(Math.min(progress/20, 100));
+            }
+    		Date stop_time = new Date();
+    		etime = (stop_time.getTime() - start_time.getTime())/1000.;
+    		return null;
         }
  
         /*
@@ -77,6 +86,9 @@ public class ProgressBarDemo extends JPanel
             startButton.setEnabled(true);
             setCursor(null); //turn off the wait cursor
             taskOutput.append("Done!\n");
+           // int gen = 100;
+            taskOutput.append(population.print3(gen));
+            taskOutput.append(String.valueOf(etime));
         }
     }
  
@@ -126,7 +138,9 @@ public class ProgressBarDemo extends JPanel
         if ("progress" == evt.getPropertyName()) {
             int progress = (Integer) evt.getNewValue();
             progressBar.setValue(progress);
-            taskOutput.append(population.print3(gen));
+            taskOutput.append(String.format(
+                    "Completed %d%% of task.\n", task.getProgress()));
+            //taskOutput.append(population.print3(gen);
         } 
     }
  

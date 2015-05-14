@@ -1,14 +1,20 @@
 package badania;
 
 import java.awt.EventQueue;
+
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+
 import java.awt.Dimension;
 import java.awt.Paint;
+
 import javax.swing.JScrollPane;
+
 import java.awt.Color;
+
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -16,13 +22,17 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
+
 import org.apache.commons.collections15.Transformer;
+
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -30,6 +40,10 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+
+import javax.swing.JSpinner;
+import javax.swing.JComboBox;
+import javax.swing.border.EtchedBorder;
 
 public class Window {
 
@@ -40,7 +54,7 @@ public class Window {
 	private JTextField mutat;
 	
 	int pop;
-	int gen;
+	double gen;
 	double mut;
 	private JTextField wierz;
 	private JTextField kraw;
@@ -56,16 +70,17 @@ public class Window {
 	private JButton btnZapisz;
 	private JButton btnPowieksz;
 	private JScrollPane scrollPane_1;
+	private JComboBox<String> comboBox;
 	
 	//zeby latwiej bylo poprawiac wysypane polskie znaki
-	private final String s1 = "Macierz sÄ…siedztwa";
-	private final String s2 = "Problem maksymalnego zbioru niezaleÅ¼nego";
-	private final String s3 = "WskaÅ¼ plik";
-	private final String s4 = "NaleÅ¼y wpisaÄ‡ liczby.";
-	private final String s5 = "LiczebnoÅ›Ä‡ populacji";
-	private final String s6 = "L. wierzchoÅ‚kÃ³w";
-	private final String s7 = "L. krawÄ™dzi";
-	private final String s8 = "PowiÄ™ksz";
+	private final String s1 = "Macierz s¹siedztwa";
+	private final String s2 = "Problem maksymalnego zbioru niezale¿nego";
+	private final String s3 = "Wska¿ plik";
+	private final String s4 = "Nale¿y wpisaæ liczby.";
+	private final String s5 = "Liczebnoœæ populacji";
+	private final String s6 = "L. wierzcho³ków";
+	private final String s7 = "L. krawêdzi";
+	private final String s8 = "Powiêksz";
 
 	//---------------------------------------------------------
 	
@@ -133,7 +148,7 @@ public class Window {
             JPanel container = new JPanel();
             container.add(vv);
             JScrollPane jsp = new JScrollPane(container);
-            frame.add(jsp);
+            frame.getContentPane().add(jsp);
         }
         else {
             panel_1.add(vv);
@@ -191,19 +206,48 @@ public class Window {
 		final JFileChooser fc = new JFileChooser();
 		
 		frame = new JFrame(s2);
-		frame.setBounds(100, 100, 800, 600);
+		frame.setBounds(100, 100, 800, 670);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		final JButton btnWskazPlik = new JButton(s3);
-		btnWskazPlik.setBounds(34, 285, 110, 20);
+		btnWskazPlik.setBounds(30, 285, 110, 20);
 		btnWskazPlik.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				chooseFileReturnVal = fc.showOpenDialog(frame);
 			}
 		});
+		frame.getContentPane().setLayout(null);
+		frame.getContentPane().add(btnWskazPlik);
+		btnWskazPlik.setEnabled(false);
+
+		progressBar = new JProgressBar(0,100);
+		progressBar.setBounds(160, 470, 620, 25);
+		progressBar.setValue(0);
+		progressBar.setStringPainted(true);
+		frame.getContentPane().add(progressBar);
+		
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(5, 500, 775, 125);
+		frame.getContentPane().add(scrollPane_1);
+		
+		textArea = new JTextArea(5,20);
+		scrollPane_1.setViewportView(textArea);
+		textArea.setEditable(false);
+		
+		panel_1 = new JPanel();
+		panel_1.setBounds(160, 10, 620, 455);
+		panel_1.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		frame.getContentPane().add(panel_1);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(5, 10, 150, 485);
+		panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		frame.getContentPane().add(panel);
+		panel.setLayout(null);
 		
 		final JButton btnUruchom = new JButton("Uruchom");
-		btnUruchom.setBounds(5, 400, 155, 25);
+		btnUruchom.setBounds(5, 440, 140, 40);
+		panel.add(btnUruchom);
 		btnUruchom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -213,7 +257,7 @@ public class Window {
 					if(pop < 1) {
 						pop = 1;
 					}
-					gen = Integer.parseInt(gener.getText());
+					gen = Double.parseDouble(gener.getText());
 					mut = Double.parseDouble(mutat.getText());
 					if(mut < 0) {
 						mut = 0;
@@ -230,7 +274,7 @@ public class Window {
 							if(wie < 0) {
 								wie = 1;
 							}
-							alg.genGraph(kra, wie);
+							alg.genGraph(wie, kra);
 						}
 						catch(Exception e) {
 							displayMessage(s4);
@@ -249,11 +293,18 @@ public class Window {
 							displayMessage("Problem z plikiem.");
 						}
 					}
-					alg.run(pop, gen, mut);
+					if(comboBox.getSelectedItem() == "Jednopunktowy") {
+						alg.run(pop, gen, mut, "Jednopunktowy");
+					} else if(comboBox.getSelectedItem() == "Jednorodny") {
+						alg.run(pop, gen, mut, "Jednorodny");
+					} else {
+						alg.run(pop, gen, mut, "Wa¿ony");
+					}
+					//alg.run(pop, gen, mut);
 					displayMessage("Elapsed time: " + alg.getEtime() + " s");
-					displayAdjMatrix(alg.getAdjMatrix());
+					//displayAdjMatrix(alg.getAdjMatrix());
 					panel_1.removeAll();
-					displayGraph(620, 380, alg.getAdjMatrix(), alg.getPopulation(), false);
+					displayGraph(610, 445, alg.getAdjMatrix(), alg.getPopulation(), false);
 					btnPowieksz.setEnabled(true);
 					btnZapisz.setEnabled(true);
 					panel_1.repaint();
@@ -264,62 +315,35 @@ public class Window {
 				} 				
 			}
 		});
-		frame.getContentPane().setLayout(null);
-		frame.getContentPane().add(btnUruchom);
-		frame.getContentPane().add(btnWskazPlik);
 		btnUruchom.setEnabled(false);
-		btnWskazPlik.setEnabled(false);
-
-		progressBar = new JProgressBar(0,100);
-		progressBar.setBounds(170, 400, 610, 25);
-		progressBar.setValue(0);
-		progressBar.setStringPainted(true);
-		frame.getContentPane().add(progressBar);
-		
-		scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(5, 430, 775, 125);
-		frame.getContentPane().add(scrollPane_1);
-		
-		textArea = new JTextArea(5,20);
-		scrollPane_1.setViewportView(textArea);
-		textArea.setEditable(false);
-		
-		panel_1 = new JPanel();
-		panel_1.setBounds(160, 10, 620, 380);
-		frame.getContentPane().add(panel_1);
-		
-		JPanel panel = new JPanel();
-		panel.setBounds(10, 10, 150, 380);
-		frame.getContentPane().add(panel);
-		panel.setLayout(null);
 		
 		popul = new JTextField();
 		popul.setText("5");
-		popul.setBounds(0, 20, 100, 20);
+		popul.setBounds(5, 20, 100, 20);
 		panel.add(popul);
 		popul.setColumns(10);
 		
 		JLabel lblLiczebnoPopulacji = new JLabel(s5);
-		lblLiczebnoPopulacji.setBounds(0, 5, 150, 15);
+		lblLiczebnoPopulacji.setBounds(5, 5, 150, 15);
 		panel.add(lblLiczebnoPopulacji);
 		
 		JLabel lblLiczbaGeneracji = new JLabel("Warunek stopu");
-		lblLiczbaGeneracji.setBounds(0, 50, 150, 15);
+		lblLiczbaGeneracji.setBounds(5, 50, 150, 15);
 		panel.add(lblLiczbaGeneracji);
 		
 		gener = new JTextField();
 		gener.setText("1");
-		gener.setBounds(0, 65, 100, 20);
+		gener.setBounds(5, 65, 100, 20);
 		panel.add(gener);
 		gener.setColumns(10);
 		
 		JLabel lblMutacja = new JLabel("Mutacja");
-		lblMutacja.setBounds(0, 95, 150, 15);
+		lblMutacja.setBounds(5, 95, 150, 15);
 		panel.add(lblMutacja);
 		
 		mutat = new JTextField();
 		mutat.setText("0.1");
-		mutat.setBounds(0, 110, 100, 20);
+		mutat.setBounds(5, 110, 100, 20);
 		panel.add(mutat);
 		mutat.setColumns(10);
 		
@@ -338,7 +362,7 @@ public class Window {
 				}
 			}
 		});
-		rdbtnGenerujGraf.setBounds(0, 129, 144, 23);
+		rdbtnGenerujGraf.setBounds(5, 135, 140, 20);
 		panel.add(rdbtnGenerujGraf);
 		
 		rdbtnWczytajZPliku = new JRadioButton("Wczytaj z pliku");
@@ -355,7 +379,7 @@ public class Window {
 				}
 			}
 		});
-		rdbtnWczytajZPliku.setBounds(0, 249, 144, 23);
+		rdbtnWczytajZPliku.setBounds(5, 250, 140, 20);
 		panel.add(rdbtnWczytajZPliku);
 		
 		ButtonGroup group = new ButtonGroup();
@@ -363,27 +387,27 @@ public class Window {
 	    group.add(rdbtnWczytajZPliku);
 		
 		JLabel lblIlocWierzchokow = new JLabel(s6);
-		lblIlocWierzchokow.setBounds(10, 160, 150, 15);
+		lblIlocWierzchokow.setBounds(15, 160, 150, 15);
 		panel.add(lblIlocWierzchokow);
 		
 		wierz = new JTextField();
-		wierz.setBounds(10, 175, 90, 20);
+		wierz.setBounds(15, 175, 90, 20);
 		panel.add(wierz);
 		wierz.setColumns(10);
 		wierz.setEnabled(false);
 		
 		JLabel lblIloKrawdzi = new JLabel(s7);
-		lblIloKrawdzi.setBounds(10, 200, 134, 14);
+		lblIloKrawdzi.setBounds(15, 200, 134, 14);
 		panel.add(lblIloKrawdzi);
 		
 		kraw = new JTextField();
-		kraw.setBounds(10, 215, 90, 20);
+		kraw.setBounds(15, 215, 90, 20);
 		panel.add(kraw);
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
 		
 		btnPowieksz = new JButton(s8);
-		btnPowieksz.setBounds(10, 320, 130, 20);
+		btnPowieksz.setBounds(10, 370, 130, 20);
 		panel.add(btnPowieksz);
 		btnPowieksz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -393,7 +417,7 @@ public class Window {
 		btnPowieksz.setEnabled(false);
 		
 		btnZapisz = new JButton("Zapisz");
-		btnZapisz.setBounds(10, 350, 130, 20);
+		btnZapisz.setBounds(10, 400, 130, 20);
 		panel.add(btnZapisz);
 		btnZapisz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -401,5 +425,16 @@ public class Window {
 			}
 		});
 		btnZapisz.setEnabled(false);	
+		
+		JLabel lblNewLabel = new JLabel("Spos\u00F3b crossowania:");
+		lblNewLabel.setBounds(5, 310, 150, 15);
+		panel.add(lblNewLabel);
+		
+		comboBox = new JComboBox();
+		comboBox.setBounds(5, 325, 140, 20);
+		comboBox.addItem("Jednopunktowy");
+		comboBox.addItem("Jednorodny");
+		comboBox.addItem("Wa¿ony");
+		panel.add(comboBox);
 	}
 }
