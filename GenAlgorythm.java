@@ -3,26 +3,52 @@ package badania;
 import java.io.*;
 import java.util.*;
 
+import javax.swing.JProgressBar;
 
-public class GenAlgorythm {
-	private double etime;
+
+public class GenAlgorythm implements Runnable {
 	private int iterations = 0;
 	private int k = 0;
 	private int vertNum = 0;
 	private int edgeNum = 0;
+	private int populationQuantity = 0;
+	private int barValue = 0;
+	private double stopCon = 0;
+	private double mutationProbability = 0;
+	private String crossMethod = null;
 	public int[][] adjMatrix;
 	public Population population;
+	JProgressBar progressBar = null;
+	private Date start_time, stop_time;
 	
-	public void run(int populationQuantity, double stopCon, double mutationProbability, String crossMethod) {	
-		Date start_time = new Date();
+	public void setParams(int _populationQuantity, double _stopCon, double _mutationProbability, String _crossMethod, JProgressBar _progressBar) {
+		populationQuantity = _populationQuantity;
+		stopCon = _stopCon;
+		mutationProbability = _mutationProbability;
+		crossMethod = _crossMethod;
+		progressBar = _progressBar;
+	}
+	
+	public void run() {
+		start_time = new Date();
+		
 		population = new Population(populationQuantity, vertNum, adjMatrix);
 		population.sort();
 		
 		Random rand = new Random();
-		int childNumb = populationQuantity;
-			
+		int childNumb = populationQuantity;	
 		int gen = 0;
-		while(true) {			
+		
+		double sv = Math.round(100 / (stopCon * vertNum)); 
+				
+		while(true) {	
+			barValue = (int) Math.round(iterations * sv);
+			if (barValue == 100) {
+				barValue = 99;
+			}
+			progressBar.setValue(barValue);
+			progressBar.repaint();
+
 			Chromosome[] childTab = new Chromosome[childNumb];
 			for(int i = 0; i < childNumb; i++) {
 				int p = rand.nextInt(populationQuantity-1)+1;
@@ -63,11 +89,16 @@ public class GenAlgorythm {
 			}
 			if (iterations >= (stopCon * vertNum) || gen >= 10 * vertNum) {
 				break;
+			}            			System.out.println(iterations);
+			try {
+				Thread.sleep(10);
 			}
-		}
-		//population.print(gen);
-		Date stop_time = new Date();
-		etime = (stop_time.getTime() - start_time.getTime())/1000.;
+			catch (InterruptedException err) { System.out.println("dupa");}
+		}		
+		progressBar.setValue(100);
+		progressBar.repaint();
+		stop_time = new Date();
+		Window.displayMessage("Elapsed time: " + this.getEtime() + " s");
 	}
 	
 	public void getGraph(String path) throws FileNotFoundException {
@@ -145,6 +176,6 @@ public class GenAlgorythm {
 	}
 	
 	double getEtime() {
-		return etime;
+		return (stop_time.getTime() - start_time.getTime())/1000.;
 	}
 }

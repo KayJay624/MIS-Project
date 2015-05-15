@@ -35,7 +35,7 @@ public class Population {
 	
 	public void print(int gen) {
 		String wynik = "Generacja: " + gen + "\n";
-		wynik += "nr   fitness:   chromosom: \n";
+		wynik += "nr   fitness   chromosom \n";
 		for(int j = 0 ; j < population.size(); j++) {
    		  	wynik += (j+1 + ".    " + population.get(j).fit + "          ");
 	    	  for(int i = 0; i < population.get(j).size(); i++) {
@@ -49,7 +49,7 @@ public class Population {
 	
 	public void print2(int gen) {
 		//String wynik = "Generacja: " + gen + "\n";
-		System.out.println("nr   fitness:   chromosom: \n");
+		System.out.println("nr   fitness   chromosom \n");
 		for(int j = 0 ; j < population.size(); j++) {
 			System.out.print(j+1 + ".    " + population.get(j).fit + "          ");
 	    	  for(int i = 0; i < population.get(j).size(); i++) {
@@ -63,7 +63,7 @@ public class Population {
 	
 	public String print3(int gen) {
 		String wynik = "Generacja: " + gen + "\n";
-		wynik += "nr   fitness:   chromosom: \n";
+		wynik += "nr   fitness   chromosom \n";
 		for(int j = 0 ; j < population.size()-1; j++) {
    		  	wynik += (j + ".    " + population.get(j).fit + "          ");
 	    	  for(int i = 0; i < population.get(j).chromosome.length; i++) {

@@ -1,20 +1,14 @@
 package badania;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
-
 import java.awt.Dimension;
 import java.awt.Paint;
-
 import javax.swing.JScrollPane;
-
 import java.awt.Color;
-
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -22,7 +16,6 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
@@ -30,9 +23,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
-
 import org.apache.commons.collections15.Transformer;
-
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -40,7 +31,6 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-
 import javax.swing.JSpinner;
 import javax.swing.JComboBox;
 import javax.swing.border.EtchedBorder;
@@ -73,14 +63,16 @@ public class Window {
 	private JComboBox<String> comboBox;
 	
 	//zeby latwiej bylo poprawiac wysypane polskie znaki
-	private final String s1 = "Macierz s¹siedztwa";
-	private final String s2 = "Problem maksymalnego zbioru niezale¿nego";
-	private final String s3 = "Wska¿ plik";
-	private final String s4 = "Nale¿y wpisaæ liczby.";
-	private final String s5 = "Liczebnoœæ populacji";
-	private final String s6 = "L. wierzcho³ków";
-	private final String s7 = "L. krawêdzi";
-	private final String s8 = "Powiêksz";
+	private final String s1 = "Macierz sÂ¹siedztwa";
+	private final String s2 = "Problem maksymalnego zbioru niezaleÂ¿nego";
+	private final String s3 = "WskaÂ¿ plik";
+	private final String s4 = "NaleÂ¿y wpisaÃ¦ liczby.";
+	private final String s5 = "Populacja";
+	private final String s6 = "L. wierzchoÂ³kÃ³w";
+	private final String s7 = "L. krawÃªdzi";
+	private final String s8 = "PowiÃªksz";
+	private final String s9 = "KrzyÅ¼owanie";
+	private final String s10 = "waÅ¼one";
 
 	//---------------------------------------------------------
 	
@@ -122,12 +114,17 @@ public class Window {
 		
        Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
             public Paint transform(Vertexx i) {
-            	int[] tab = population.get(0).chromosome.clone();
-        		if(tab[i.id] == 1) {
-        			return Color.GREEN;
-        		} else {
-        			return Color.ORANGE;
-        		}              
+            	try {
+	            	int[] tab = population.get(0).chromosome.clone();
+	        		if(tab[i.id] == 1) {
+	        			return Color.GREEN;
+	        		} else {
+	        			return Color.ORANGE;
+	        		} 
+            	}
+            	catch (Exception e) {
+	                return Color.RED;
+            	}
             }
         };
 	
@@ -293,16 +290,14 @@ public class Window {
 							displayMessage("Problem z plikiem.");
 						}
 					}
-					if(comboBox.getSelectedItem() == "Jednopunktowy") {
-						alg.run(pop, gen, mut, "Jednopunktowy");
-					} else if(comboBox.getSelectedItem() == "Jednorodny") {
-						alg.run(pop, gen, mut, "Jednorodny");
+					if(comboBox.getSelectedItem() == "jednopunktowe") {
+						alg.setParams(pop, gen, mut, "Jednopunktowy", progressBar);
+					} else if(comboBox.getSelectedItem() == "jednorodne") {
+						alg.setParams(pop, gen, mut, "Jednorodny", null);
 					} else {
-						alg.run(pop, gen, mut, "Wa¿ony");
+						alg.setParams(pop, gen, mut, "Wazony", null);
 					}
-					//alg.run(pop, gen, mut);
-					displayMessage("Elapsed time: " + alg.getEtime() + " s");
-					//displayAdjMatrix(alg.getAdjMatrix());
+					new Thread(alg).start();
 					panel_1.removeAll();
 					displayGraph(610, 445, alg.getAdjMatrix(), alg.getPopulation(), false);
 					btnPowieksz.setEnabled(true);
@@ -311,7 +306,7 @@ public class Window {
 					
 				} 
 				catch (Exception e) {
-					displayMessage(s4);
+					e.printStackTrace();
 				} 				
 			}
 		});
@@ -426,15 +421,15 @@ public class Window {
 		});
 		btnZapisz.setEnabled(false);	
 		
-		JLabel lblNewLabel = new JLabel("Spos\u00F3b crossowania:");
+		JLabel lblNewLabel = new JLabel(s9);
 		lblNewLabel.setBounds(5, 310, 150, 15);
 		panel.add(lblNewLabel);
 		
 		comboBox = new JComboBox();
 		comboBox.setBounds(5, 325, 140, 20);
-		comboBox.addItem("Jednopunktowy");
-		comboBox.addItem("Jednorodny");
-		comboBox.addItem("Wa¿ony");
+		comboBox.addItem("jednopunktowe");
+		comboBox.addItem("jednorodne");
+		comboBox.addItem(s10);
 		panel.add(comboBox);
 	}
 }
