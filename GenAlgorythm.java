@@ -1,12 +1,18 @@
 package badania;
 
+import java.awt.Cursor;
+import java.awt.Toolkit;
 import java.io.*;
 import java.util.*;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
 
 
-public class GenAlgorythm implements Runnable {
+public class GenAlgorythm extends SwingWorker<Void, Void> {
 	private int iterations = 0;
 	private int k = 0;
 	private int vertNum = 0;
@@ -20,6 +26,11 @@ public class GenAlgorythm implements Runnable {
 	public Population population;
 	JProgressBar progressBar = null;
 	private Date start_time, stop_time;
+	public JButton btnUruchom;
+	public JTextArea taskOutput;
+	public int gen =0;
+	public Window window;
+	public JFrame frame;
 	
 	public void setParams(int _populationQuantity, double _stopCon, double _mutationProbability, String _crossMethod, JProgressBar _progressBar) {
 		populationQuantity = _populationQuantity;
@@ -29,7 +40,13 @@ public class GenAlgorythm implements Runnable {
 		progressBar = _progressBar;
 	}
 	
-	public void run() {
+	
+	
+	@Override
+    public synchronized Void doInBackground() {
+		int progress = 0;
+        //Initialize progress property.
+        setProgress(0);
 		start_time = new Date();
 		
 		population = new Population(populationQuantity, vertNum, adjMatrix);
@@ -37,18 +54,9 @@ public class GenAlgorythm implements Runnable {
 		
 		Random rand = new Random();
 		int childNumb = populationQuantity;	
-		int gen = 0;
-		
-		double sv = Math.round(100 / (stopCon * vertNum)); 
+		//int gen = 0;
 				
-		while(true) {	
-			barValue = (int) Math.round(iterations * sv);
-			if (barValue == 100) {
-				barValue = 99;
-			}
-			progressBar.setValue(barValue);
-			progressBar.repaint();
-
+		while(gen <= 5 * vertNum) {	
 			Chromosome[] childTab = new Chromosome[childNumb];
 			for(int i = 0; i < childNumb; i++) {
 				int p = rand.nextInt(populationQuantity-1)+1;
@@ -75,31 +83,43 @@ public class GenAlgorythm implements Runnable {
 					population.removeLast();
 			}
 			
-			population.print(gen);
-			population.print2(gen);
+			//population.print(gen);
+			//population.print2(gen);
 			gen++;
+			firePropertyChange("alg",gen-1,gen);
 			
-			int kk = population.get(0).fit;
-			if (kk > k)	{
-				k = kk;
-				iterations = 0;
-			}
-			else {
-				iterations++;
-			}
-			if (iterations >= (stopCon * vertNum) || gen >= 10 * vertNum) {
-				break;
-			}            			System.out.println(iterations);
-			try {
-				Thread.sleep(10);
-			}
-			catch (InterruptedException err) { System.out.println("dupa");}
-		}		
-		progressBar.setValue(100);
-		progressBar.repaint();
+			progress = 100 * gen / (5 * vertNum);
+			
+		
+		
+            setProgress(Math.min(progress, 100));
+            Thread.yield();
+    		//try {
+    		//	Thread.sleep(10);
+    		//} catch (InterruptedException e) {
+    			// TODO Auto-generated catch block
+    		//	e.printStackTrace();
+    		//}
+				
+		}
+		
 		stop_time = new Date();
-		Window.displayMessage("Elapsed time: " + this.getEtime() + " s");
+		//Window.displayMessage("Elapsed time: " + this.getEtime() + " s");
+		return null;
 	}
+	
+	 @Override
+     public void done() {
+         
+         //btnUruchom.setEnabled(true);
+		 frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+         //taskOutput.append(population.print3(gen));
+         window.displayGraph(610, 445, getAdjMatrix(), getPopulation(), false);
+         taskOutput.append("Done!\n");
+         taskOutput.append(String.valueOf( this.getEtime() ));
+         Toolkit.getDefaultToolkit().beep();
+         btnUruchom.setEnabled(true);
+	 }
 	
 	public void getGraph(String path) throws FileNotFoundException {
 	    File file = new File(path);

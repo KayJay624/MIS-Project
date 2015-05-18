@@ -1,21 +1,31 @@
 package badania;
 
 import java.awt.EventQueue;
+
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Paint;
+
 import javax.swing.JScrollPane;
+
 import java.awt.Color;
+
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
@@ -23,7 +33,10 @@ import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
+
 import org.apache.commons.collections15.Transformer;
+
+import badania.ProgressBarDemo.Task;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -31,12 +44,13 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+
 import javax.swing.JSpinner;
 import javax.swing.JComboBox;
 import javax.swing.border.EtchedBorder;
 
-public class Window {
-
+public class Window implements 
+								PropertyChangeListener {
 	private JFrame frame;
 	static JTextArea textArea;
 	private JTextField popul;
@@ -61,6 +75,7 @@ public class Window {
 	private JButton btnPowieksz;
 	private JScrollPane scrollPane_1;
 	private JComboBox<String> comboBox;
+	private JButton btnUruchom; 
 	
 	//zeby latwiej bylo poprawiac wysypane polskie znaki
 	private final String s1 = "Macierz s¹siedztwa";
@@ -75,6 +90,8 @@ public class Window {
 	private final String s10 = "ważone";
 
 	//---------------------------------------------------------
+	
+	
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -114,17 +131,17 @@ public class Window {
 		
        Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
             public Paint transform(Vertexx i) {
-            	try {
-	            	int[] tab = population.get(0).chromosome.clone();
+            	//try {
+	            	int[] tab = alg.population.get(0).chromosome.clone();
 	        		if(tab[i.id] == 1) {
 	        			return Color.GREEN;
 	        		} else {
 	        			return Color.ORANGE;
 	        		} 
-            	}
-            	catch (Exception e) {
-	                return Color.RED;
-            	}
+            	//}
+            	//catch (Exception e) {
+	           //     return Color.RED;
+            	//}
             }
         };
 	
@@ -199,7 +216,27 @@ public class Window {
 		catch(Exception e) {e.printStackTrace();}
 	}
 	
+
+ 
+ 
+    /**
+     * Invoked when task's progress property changes.
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("alg".equals(evt.getPropertyName()))   {
+            int generacja = (Integer) evt.getNewValue();
+           progressBar.setValue(alg.getProgress());
+            textArea.append(String.format(
+                    "Completed %d%% of task.\n", alg.getProgress()));
+            //textArea.append(alg.population.print3(generacja));
+            alg.population.print(generacja);
+        } 
+    }
+	
+	
+	
 	private void initialize() {
+		
 		final JFileChooser fc = new JFileChooser();
 		
 		frame = new JFrame(s2);
@@ -242,13 +279,23 @@ public class Window {
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
-		final JButton btnUruchom = new JButton("Uruchom");
+		btnUruchom = new JButton("Uruchom");
 		btnUruchom.setBounds(5, 440, 140, 40);
 		panel.add(btnUruchom);
 		btnUruchom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				alg = new GenAlgorythm();
+				btnUruchom.setEnabled(false);
+		        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		        //Instances of javax.swing.SwingWorker are not reusuable, so
+		        //we create new instances as needed.
+		        alg = new GenAlgorythm();
+		        alg.window = Window.this;
+		        alg.frame = frame;
+		        alg.btnUruchom = btnUruchom;
+		        alg.addPropertyChangeListener(Window.this);
+		        alg.taskOutput = textArea;
+		       
 				try {
 					pop = Integer.parseInt(popul.getText());
 					if(pop < 1) {
@@ -297,9 +344,9 @@ public class Window {
 					} else {
 						alg.setParams(pop, gen, mut, "Wazony", null);
 					}
-					new Thread(alg).start();
+					 alg.execute();
 					panel_1.removeAll();
-					displayGraph(610, 445, alg.getAdjMatrix(), alg.getPopulation(), false);
+					//displayGraph(610, 445, alg.getAdjMatrix(), alg.getPopulation(), false);
 					btnPowieksz.setEnabled(true);
 					btnZapisz.setEnabled(true);
 					panel_1.repaint();
@@ -310,7 +357,7 @@ public class Window {
 				} 				
 			}
 		});
-		btnUruchom.setEnabled(false);
+		//btnUruchom.setEnabled(false);
 		
 		popul = new JTextField();
 		popul.setText("5");

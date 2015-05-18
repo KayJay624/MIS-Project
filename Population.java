@@ -61,10 +61,10 @@ public class Population {
 		//Window.displayMessage(wynik);
 	}
 	
-	public String print3(int gen) {
+	public synchronized String print3(int gen) {
 		String wynik = "Generacja: " + gen + "\n";
 		wynik += "nr   fitness   chromosom \n";
-		for(int j = 0 ; j < population.size()-1; j++) {
+		for(int j = 0 ; j < population.size(); j++) {
    		  	wynik += (j + ".    " + population.get(j).fit + "          ");
 	    	  for(int i = 0; i < population.get(j).chromosome.length; i++) {
 	    		  wynik += ( population.get(j).chromosome[i] + "  ");	  
