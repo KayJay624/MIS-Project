@@ -17,6 +17,7 @@ public class Population {
 		}
 	}
 	
+	
 	public Chromosome get(int i) {
 		return population.get(i);
 	}
@@ -34,6 +35,7 @@ public class Population {
 	}
 	
 	public void print(int gen) {
+		synchronized(this) {
 		String wynik = "Generacja: " + gen + "\n";
 		wynik += "nr   fitness   chromosom \n";
 		for(int j = 0 ; j < population.size(); j++) {
@@ -45,6 +47,7 @@ public class Population {
    	    }
 		wynik+="\n\n";
 		Window.displayMessage(wynik);
+		}
 	}
 	
 	public void print2(int gen) {

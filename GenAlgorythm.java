@@ -43,7 +43,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 	
 	
 	@Override
-    public synchronized Void doInBackground() {
+    public Void doInBackground() {
 		int progress = 0;
         //Initialize progress property.
         setProgress(0);
@@ -57,7 +57,9 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 		//int gen = 0;
 				
 		while(gen <= 5 * vertNum) {	
+			
 			Chromosome[] childTab = new Chromosome[childNumb];
+			synchronized(population) {
 			for(int i = 0; i < childNumb; i++) {
 				int p = rand.nextInt(populationQuantity-1)+1;
 				
@@ -69,7 +71,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 					default : childTab[i] = population.get(0).wazonyCrossover(population.get(p));
 							  break;
 				}
-				childTab[i] = population.get(0).wazonyCrossover(population.get(p));
+				//childTab[i] = population.get(0).wazonyCrossover(population.get(p));
 				childTab[i].mutate(mutationProbability);
 				childTab[i].fitness(adjMatrix);
 				//if(!childTab[i].isSame(population.get(0))) {
@@ -82,7 +84,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 				if(population.population.size() > populationQuantity)
 					population.removeLast();
 			}
-			
+			}
 			//population.print(gen);
 			//population.print2(gen);
 			gen++;
@@ -94,12 +96,6 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 		
             setProgress(Math.min(progress, 100));
             Thread.yield();
-    		//try {
-    		//	Thread.sleep(10);
-    		//} catch (InterruptedException e) {
-    			// TODO Auto-generated catch block
-    		//	e.printStackTrace();
-    		//}
 				
 		}
 		
