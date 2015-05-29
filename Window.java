@@ -1,21 +1,15 @@
 package badania;
 
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
-
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Paint;
-
 import javax.swing.JScrollPane;
-
 import java.awt.Color;
-
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -25,7 +19,6 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
@@ -33,9 +26,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
-
 import org.apache.commons.collections15.Transformer;
-
 import badania.ProgressBarDemo.Task;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -44,7 +35,6 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-
 import javax.swing.JSpinner;
 import javax.swing.JComboBox;
 import javax.swing.border.EtchedBorder;
@@ -225,7 +215,7 @@ public class Window implements
     public void propertyChange(PropertyChangeEvent evt) {
         if ("alg".equals(evt.getPropertyName()))   {
             int generacja = (Integer) evt.getNewValue();
-           progressBar.setValue(alg.getProgress());
+            progressBar.setValue(alg.getProgress());
             textArea.append(String.format(
                     "Completed %d%% of task.\n", alg.getProgress()));
             //textArea.append(alg.population.print3(generacja));
@@ -374,7 +364,7 @@ public class Window implements
 		panel.add(lblLiczbaGeneracji);
 		
 		gener = new JTextField();
-		gener.setText("1");
+		gener.setText("5");
 		gener.setBounds(5, 65, 100, 20);
 		panel.add(gener);
 		gener.setColumns(10);

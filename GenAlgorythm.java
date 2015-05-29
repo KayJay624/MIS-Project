@@ -4,7 +4,6 @@ import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.io.*;
 import java.util.*;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
@@ -45,30 +44,29 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 	@Override
     public Void doInBackground() {
 		int progress = 0;
-        //Initialize progress property.
+		iterations = 0;
         setProgress(0);
-		start_time = new Date();
-		
+        double val = stopCon*vertNum/100;
+		start_time = new Date();		
 		population = new Population(populationQuantity, vertNum, adjMatrix);
 		population.sort();
 		
 		Random rand = new Random();
 		int childNumb = populationQuantity;	
-		//int gen = 0;
 				
-		while(gen <= 5 * vertNum) {	
+		while(true) {	
 			
 			Chromosome[] childTab = new Chromosome[childNumb];
 			synchronized(population) {
 			for(int i = 0; i < childNumb; i++) {
-				int p = rand.nextInt(populationQuantity-1)+1;
-				
+				//int p = rand.nextInt(populationQuantity-1)+1;
+				Chromosome[] tabParents = population.getParents();
 				switch (crossMethod) {
-					case "Jednopunktowy" : childTab[i] = population.get(0).jednopunktowyCrossover(population.get(p)); 
+					case "Jednopunktowy" : childTab[i] = tabParents[0].jednopunktowyCrossover(tabParents[1]); 
 									       break;
-					case "Jednorodny" : childTab[i] = population.get(0).jednorodnyCrossover(population.get(p));
+					case "Jednorodny" : childTab[i] = tabParents[0].jednorodnyCrossover(tabParents[1]);
 										break;
-					default : childTab[i] = population.get(0).wazonyCrossover(population.get(p));
+					default : childTab[i] = tabParents[0].wazonyCrossover(tabParents[1]);
 							  break;
 				}
 				//childTab[i] = population.get(0).wazonyCrossover(population.get(p));
@@ -79,39 +77,43 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 				//}
 			}
 			population.sort();
-			
-			for(int i = 0; i < childNumb; i++) {
-				if(population.population.size() > populationQuantity)
-					population.removeLast();
-			}
+				for(int i = 0; i < childNumb; i++) {
+					if(population.population.size() > populationQuantity)
+						population.removeLast();
+				}
 			}
 			//population.print(gen);
 			//population.print2(gen);
 			gen++;
-			firePropertyChange("alg",gen-1,gen);
 			
-			progress = 100 * gen / (5 * vertNum);
-			
-		
-		
-            setProgress(Math.min(progress, 100));
-            Thread.yield();
-				
+			firePropertyChange("alg",gen-1,gen);	
+			progress = (int)(iterations/val);
+            setProgress(progress);
+			int kk = population.get(0).fit;
+			if (kk > k)	{
+				k = kk;
+				iterations = 0;
+			}
+			else {
+				iterations++;
+			}
+			if (iterations >= (stopCon * vertNum)) {
+				break;
+			}
+            Thread.yield();		
 		}
-		
 		stop_time = new Date();
-		//Window.displayMessage("Elapsed time: " + this.getEtime() + " s");
 		return null;
-	}
+	 }
 	
-	 @Override
      public void done() {
          
+    	 progressBar.setValue(100);
          //btnUruchom.setEnabled(true);
 		 frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
          //taskOutput.append(population.print3(gen));
          window.displayGraph(610, 445, getAdjMatrix(), getPopulation(), false);
-         taskOutput.append("Done!\n");
+         taskOutput.append("Done!/n");
          taskOutput.append(String.valueOf( this.getEtime() ));
          Toolkit.getDefaultToolkit().beep();
          btnUruchom.setEnabled(true);

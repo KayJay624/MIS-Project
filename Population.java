@@ -34,6 +34,38 @@ public class Population {
 		Collections.sort(population, new chromComp());
 	}
 	
+	public Chromosome[] getParents() {
+		Random rand = new Random();
+		Chromosome[] tabParents;
+		tabParents = new Chromosome[2];
+		int size = this.population.size();
+		LinkedList<Chromosome> groupA = new LinkedList<Chromosome>();
+		LinkedList<Chromosome> groupB = new LinkedList<Chromosome>();
+		for(int i = 0; i < size - 1; i++) {
+			if (rand.nextInt(1) == 0) {
+				groupA.add(this.get(i));
+			}
+			else {
+				groupB.add(this.get(i));
+			}
+		}
+		Collections.sort(groupA, new chromComp());
+		Collections.sort(groupB, new chromComp());
+		if (groupA.isEmpty()) {
+			tabParents[0] = groupB.get(0);
+			tabParents[1] = groupB.get(1);
+		}
+		if (groupA.isEmpty()) {
+			tabParents[0] = groupA.get(0);
+			tabParents[1] = groupA.get(1);
+		}
+		else {
+			tabParents[0] = groupA.get(0);
+			tabParents[1] = groupB.get(0);
+		}
+		return tabParents;
+	}
+	
 	public void print(int gen) {
 		synchronized(this) {
 		String wynik = "Generacja: " + gen + "\n";
