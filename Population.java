@@ -80,10 +80,12 @@ public class Population {
 			if (groupAquantity == maximalQuantity)
 			{
 				groupB.add(this.get(i));
+				continue;
 			}
 			else if (groupBquantity == maximalQuantity)
 			{
 				groupA.add(this.get(i));
+				continue;
 			}
 			if (rand.nextInt(1) == 0) {
 				groupA.add(this.get(i));
