@@ -60,7 +60,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 			synchronized(population) {
 			for(int i = 0; i < childNumb; i++) {
 				//int p = rand.nextInt(populationQuantity-1)+1;
-				Chromosome[] tabParents = population.getParents();
+				Chromosome[] tabParents = population.getParentsTraditional();
 				switch (crossMethod) {
 					case "Jednopunktowy" : childTab[i] = tabParents[0].jednopunktowyCrossover(tabParents[1]); 
 									       break;
