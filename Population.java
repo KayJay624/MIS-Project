@@ -55,7 +55,7 @@ public class Population {
 			tabParents[0] = groupB.get(0);
 			tabParents[1] = groupB.get(1);
 		}
-		if (groupA.isEmpty()) {
+		if (groupB.isEmpty()) {
 			tabParents[0] = groupA.get(0);
 			tabParents[1] = groupA.get(1);
 		}
@@ -63,6 +63,41 @@ public class Population {
 			tabParents[0] = groupA.get(0);
 			tabParents[1] = groupB.get(0);
 		}
+		return tabParents;
+	}
+	
+	public Chromosome[] getParentsTraditional() {
+		int size = this.population.size();
+		Random rand = new Random();
+		int groupAquantity = 0;
+		int groupBquantity = 0;
+		int maximalQuantity = size/2;
+		Chromosome[] tabParents;
+		tabParents = new Chromosome[2];
+		LinkedList<Chromosome> groupA = new LinkedList<Chromosome>();
+		LinkedList<Chromosome> groupB = new LinkedList<Chromosome>();
+		for(int i = 0; i < size - 1; i++) {
+			if (groupAquantity == maximalQuantity)
+			{
+				groupB.add(this.get(i));
+			}
+			else if (groupBquantity == maximalQuantity)
+			{
+				groupA.add(this.get(i));
+			}
+			if (rand.nextInt(1) == 0) {
+				groupA.add(this.get(i));
+				groupAquantity++;
+			}
+			else {
+				groupB.add(this.get(i));
+				groupBquantity++;
+			}
+		}
+		Collections.sort(groupA, new chromComp());
+		Collections.sort(groupB, new chromComp());
+		tabParents[0] = groupA.get(0);
+		tabParents[1] = groupB.get(0);
 		return tabParents;
 	}
 	
