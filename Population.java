@@ -42,7 +42,7 @@ public class Population {
 		LinkedList<Chromosome> groupA = new LinkedList<Chromosome>();
 		LinkedList<Chromosome> groupB = new LinkedList<Chromosome>();
 		for(int i = 0; i < size - 1; i++) {
-			if (rand.nextInt(1) == 0) {
+			if (rand.nextBoolean()) {
 				groupA.add(this.get(i));
 			}
 			else {
@@ -55,7 +55,7 @@ public class Population {
 			tabParents[0] = groupB.get(0);
 			tabParents[1] = groupB.get(1);
 		}
-		if (groupB.isEmpty()) {
+		else if (groupB.isEmpty()) {
 			tabParents[0] = groupA.get(0);
 			tabParents[1] = groupA.get(1);
 		}

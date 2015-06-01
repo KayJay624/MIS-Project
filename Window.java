@@ -1,15 +1,23 @@
 package badania;
 
 import java.awt.EventQueue;
+
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+
+import java.awt.BasicStroke;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Paint;
+import java.awt.Stroke;
+
 import javax.swing.JScrollPane;
+
 import java.awt.Color;
+
 import javax.swing.JProgressBar;
 import javax.swing.JButton;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -19,6 +27,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
@@ -26,7 +35,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
+
 import org.apache.commons.collections15.Transformer;
+
 import badania.ProgressBarDemo.Task;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -35,6 +46,7 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+
 import javax.swing.JSpinner;
 import javax.swing.JComboBox;
 import javax.swing.border.EtchedBorder;
@@ -63,6 +75,7 @@ public class Window implements
 	private GenAlgorythm alg;
 	private JButton btnZapisz;
 	private JButton btnPowieksz;
+	private JButton btnChart; 
 	private JScrollPane scrollPane_1;
 	private JComboBox<String> comboBox;
 	private JButton btnUruchom; 
@@ -80,7 +93,7 @@ public class Window implements
 	private final String s10 = "ważone";
 
 	//---------------------------------------------------------
-	
+	private Chart chart = new Chart();
 	
 	
 	public static void main(String[] args) {
@@ -119,6 +132,14 @@ public class Window implements
 			}
 		}
 		
+		Transformer<Vertexx, Paint> edgeStroke = new Transformer<Vertexx, Paint>() {
+		    public Paint transform(Vertexx s) {
+		    	
+		    	new BasicStroke();
+		        return Color.GREEN;
+		    }
+		};
+	
        Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
             public Paint transform(Vertexx i) {
             	//try {
@@ -141,6 +162,7 @@ public class Window implements
         vv.setPreferredSize(new Dimension(x, y)); 
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Vertexx>());
         vv.getRenderContext().setVertexFillPaintTransformer(vertexColor);
+        //vv.getRenderContext().setEdgeDrawPaintTransformer(edgeStroke);
         vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 
         if (big) {
@@ -208,13 +230,14 @@ public class Window implements
 	
 
  
- 
     /**
      * Invoked when task's progress property changes.
      */
     public void propertyChange(PropertyChangeEvent evt) {
         if ("alg".equals(evt.getPropertyName()))   {
             int generacja = (Integer) evt.getNewValue();
+            chart.series.add(generacja, alg.population.get(0).fit);
+            chart.series2.add(generacja, alg.population.get(4).fit);
             progressBar.setValue(alg.getProgress());
             textArea.append(String.format(
                     "Completed %d%% of task.\n", alg.getProgress()));
@@ -279,6 +302,7 @@ public class Window implements
 		        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		        //Instances of javax.swing.SwingWorker are not reusuable, so
 		        //we create new instances as needed.
+		        chart = new Chart();
 		        alg = new GenAlgorythm();
 		        alg.window = Window.this;
 		        alg.frame = frame;
@@ -339,6 +363,7 @@ public class Window implements
 					//displayGraph(610, 445, alg.getAdjMatrix(), alg.getPopulation(), false);
 					btnPowieksz.setEnabled(true);
 					btnZapisz.setEnabled(true);
+					btnChart.setEnabled(true);
 					panel_1.repaint();
 					
 				} 
@@ -439,17 +464,18 @@ public class Window implements
 		kraw.setEnabled(false);
 		
 		btnPowieksz = new JButton(s8);
-		btnPowieksz.setBounds(10, 370, 130, 20);
+		btnPowieksz.setBounds(10, 385, 130, 20);
 		panel.add(btnPowieksz);
 		btnPowieksz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				displayGraph(2000, 2000, alg.getAdjMatrix(), alg.getPopulation(), true);
+				//chart.display();
 			}
 		});
 		btnPowieksz.setEnabled(false);
 		
 		btnZapisz = new JButton("Zapisz");
-		btnZapisz.setBounds(10, 400, 130, 20);
+		btnZapisz.setBounds(10, 410, 130, 20);
 		panel.add(btnZapisz);
 		btnZapisz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -468,5 +494,15 @@ public class Window implements
 		comboBox.addItem("jednorodne");
 		comboBox.addItem(s10);
 		panel.add(comboBox);
+		
+		btnChart = new JButton("Wykres");
+		btnChart.setBounds(10, 360, 130, 20);
+		panel.add(btnChart);
+		btnChart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chart.display();
+			}
+		});
+		btnChart.setEnabled(false);	
 	}
 }

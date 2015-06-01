@@ -4,6 +4,7 @@ import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.io.*;
 import java.util.*;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
@@ -54,28 +55,29 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 		Random rand = new Random();
 		int childNumb = populationQuantity;	
 				
-		while(true) {	
+		while(gen < stopCon*vertNum) {	
 			
-			Chromosome[] childTab = new Chromosome[childNumb];
+			//Chromosome[] childTab = new Chromosome[childNumb];
+			Chromosome child = new Chromosome(vertNum);
 			synchronized(population) {
-			for(int i = 0; i < childNumb; i++) {
+			//for(int i = 0; i < childNumb; i++) {
 				//int p = rand.nextInt(populationQuantity-1)+1;
-				Chromosome[] tabParents = population.getParentsTraditional();
+				Chromosome[] tabParents = population.getParents();
 				switch (crossMethod) {
-					case "Jednopunktowy" : childTab[i] = tabParents[0].jednopunktowyCrossover(tabParents[1]); 
+					case "Jednopunktowy" : child = tabParents[0].jednopunktowyCrossover(tabParents[1]); 
 									       break;
-					case "Jednorodny" : childTab[i] = tabParents[0].jednorodnyCrossover(tabParents[1]);
+					case "Jednorodny" : child = tabParents[0].jednorodnyCrossover(tabParents[1]);
 										break;
-					default : childTab[i] = tabParents[0].wazonyCrossover(tabParents[1]);
+					default : child = tabParents[0].wazonyCrossover(tabParents[1]);
 							  break;
 				}
 				//childTab[i] = population.get(0).wazonyCrossover(population.get(p));
-				childTab[i].mutate(mutationProbability);
-				childTab[i].fitness(adjMatrix);
+				child.mutate(mutationProbability);
+				child.fitness(adjMatrix);
 				//if(!childTab[i].isSame(population.get(0))) {
-					population.add(childTab[i]);
+					population.add(child);
 				//}
-			}
+			//}
 			population.sort();
 				for(int i = 0; i < childNumb; i++) {
 					if(population.population.size() > populationQuantity)
@@ -87,9 +89,17 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 			gen++;
 			
 			firePropertyChange("alg",gen-1,gen);	
-			progress = (int)(iterations/val);
-            setProgress(progress);
-			int kk = population.get(0).fit;
+			progress = (int) (100 * gen / (stopCon * vertNum));
+			setProgress(Math.min(progress, 100));
+			//if(vertNum < 200) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			//}
+			/*int kk = population.get(0).fit;
 			if (kk > k)	{
 				k = kk;
 				iterations = 0;
@@ -99,7 +109,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 			}
 			if (iterations >= (stopCon * vertNum)) {
 				break;
-			}
+			}*/
             Thread.yield();		
 		}
 		stop_time = new Date();
@@ -108,7 +118,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 	
      public void done() {
          
-    	 progressBar.setValue(100);
+    	 //progressBar.setValue(100);
          //btnUruchom.setEnabled(true);
 		 frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
          //taskOutput.append(population.print3(gen));
