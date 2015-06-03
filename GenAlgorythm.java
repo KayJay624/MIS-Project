@@ -15,13 +15,13 @@ import javax.swing.SwingWorker;
 public class GenAlgorythm extends SwingWorker<Void, Void> {
 	private int iterations = 0;
 	private int k = 0;
-	private int vertNum = 0;
+	int vertNum = 0;
 	private int edgeNum = 0;
 	private int populationQuantity = 0;
 	private int barValue = 0;
 	private double stopCon = 0;
 	private double mutationProbability = 0;
-	private String crossMethod = null;
+	private int crossMethod = 0;
 	public int[][] adjMatrix;
 	public Population population;
 	JProgressBar progressBar = null;
@@ -32,7 +32,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 	public Window window;
 	public JFrame frame;
 	
-	public void setParams(int _populationQuantity, double _stopCon, double _mutationProbability, String _crossMethod, JProgressBar _progressBar) {
+	public void setParams(int _populationQuantity, double _stopCon, double _mutationProbability, int _crossMethod, JProgressBar _progressBar) {
 		populationQuantity = _populationQuantity;
 		stopCon = _stopCon;
 		mutationProbability = _mutationProbability;
@@ -54,26 +54,35 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 		
 		Random rand = new Random();
 		int childNumb = populationQuantity;	
-				
-		while(gen < stopCon*vertNum) {	
-			
+		
+		double sumaT = 0;
+		//public  int l = 0;
+		
+		while(true) {	
+			//Date start_time1, stop_time1;
+			//start_time1 = new Date();
 			//Chromosome[] childTab = new Chromosome[childNumb];
-			Chromosome child = new Chromosome(vertNum);
+			
 			synchronized(population) {
-			//for(int i = 0; i < childNumb; i++) {
+				Chromosome child;// = new Chromosome(vertNum,adjMatrix);
+			//for(int i = 0; i < 2; i++) {
 				//int p = rand.nextInt(populationQuantity-1)+1;
+				
 				Chromosome[] tabParents = population.getParents();
+				
 				switch (crossMethod) {
-					case "Jednopunktowy" : child = tabParents[0].jednopunktowyCrossover(tabParents[1]); 
+					case 0 : child = tabParents[0].jednopunktowyCrossover(tabParents[1]); 
 									       break;
-					case "Jednorodny" : child = tabParents[0].jednorodnyCrossover(tabParents[1]);
+					case 1 : child = tabParents[0].jednorodnyCrossover(tabParents[1]);
 										break;
-					default : child = tabParents[0].wazonyCrossover(tabParents[1]);
+					default : 
+									child = tabParents[0].wazonyCrossover(tabParents[1]);
 							  break;
 				}
-				//childTab[i] = population.get(0).wazonyCrossover(population.get(p));
+				
+				//childTab[i] = tabParents[0].wazonyCrossover(tabParents[1]);
 				child.mutate(mutationProbability);
-				child.fitness(adjMatrix);
+				child.fitness();
 				//if(!childTab[i].isSame(population.get(0))) {
 					population.add(child);
 				//}
@@ -84,22 +93,23 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 						population.removeLast();
 				}
 			}
+			
 			//population.print(gen);
 			//population.print2(gen);
 			gen++;
 			
 			firePropertyChange("alg",gen-1,gen);	
-			progress = (int) (100 * gen / (stopCon * vertNum));
+			progress = (int) (100 * gen / (15* vertNum));
 			setProgress(Math.min(progress, 100));
 			//if(vertNum < 200) {
-				try {
+			try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			//}
-			/*int kk = population.get(0).fit;
+			int kk = population.get(0).fit;
 			if (kk > k)	{
 				k = kk;
 				iterations = 0;
@@ -107,10 +117,14 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 			else {
 				iterations++;
 			}
-			if (iterations >= (stopCon * vertNum)) {
+			if (iterations >= (stopCon * vertNum) || gen >= 15*vertNum) {
 				break;
-			}*/
-            Thread.yield();		
+			}
+            Thread.yield();	
+           // stop_time1 = new Date();
+           // double t = (stop_time1.getTime() - start_time1.getTime());   
+           // sumaT+=t;
+    		//System.out.println(gen + " " + sumaT/gen);
 		}
 		stop_time = new Date();
 		return null;
@@ -118,12 +132,12 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 	
      public void done() {
          
-    	 //progressBar.setValue(100);
+    	 progressBar.setValue(100);
          //btnUruchom.setEnabled(true);
 		 frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
          //taskOutput.append(population.print3(gen));
          window.displayGraph(610, 445, getAdjMatrix(), getPopulation(), false);
-         taskOutput.append("Done!/n");
+         taskOutput.append("Done!\n");
          taskOutput.append(String.valueOf( this.getEtime() ));
          Toolkit.getDefaultToolkit().beep();
          btnUruchom.setEnabled(true);

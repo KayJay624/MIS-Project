@@ -53,7 +53,7 @@ import javax.swing.border.EtchedBorder;
 
 public class Window implements 
 								PropertyChangeListener {
-	private JFrame frame;
+	JFrame frame;
 	static JTextArea textArea;
 	private JTextField popul;
 	private JTextField gener;
@@ -70,7 +70,7 @@ public class Window implements
 	JRadioButton rdbtnWczytajZPliku;
 	
 	JPanel panel_1;
-	JProgressBar progressBar;
+	private JProgressBar progressBar;
 	
 	private GenAlgorythm alg;
 	private JButton btnZapisz;
@@ -81,16 +81,16 @@ public class Window implements
 	private JButton btnUruchom; 
 	
 	//zeby latwiej bylo poprawiac wysypane polskie znaki
-	private final String s1 = "Macierz sÂ¹siedztwa";
-	private final String s2 = "Problem maksymalnego zbioru niezaleÂ¿nego";
-	private final String s3 = "WskaÂ¿ plik";
-	private final String s4 = "NaleÂ¿y wpisaÃ¦ liczby.";
+	private final String s1 = "Macierz s¹siedztwa";
+	private final String s2 = "Problem maksymalnego zbioru niezale¿nego";
+	private final String s3 = "Wska¿ plik";
+	private final String s4 = "Nale¿y wpisaæ liczby.";
 	private final String s5 = "Populacja";
-	private final String s6 = "L. wierzchoÂ³kÃ³w";
-	private final String s7 = "L. krawÃªdzi";
-	private final String s8 = "PowiÃªksz";
-	private final String s9 = "KrzyÅ¼owanie";
-	private final String s10 = "waÅ¼one";
+	private final String s6 = "L. wierzcho³ków";
+	private final String s7 = "L. krawêdzi";
+	private final String s8 = "Powiêksz";
+	private final String s9 = "Krzy¿owanie";
+	private final String s10 = "wa¿one";
 
 	//---------------------------------------------------------
 	private Chart chart = new Chart();
@@ -143,7 +143,7 @@ public class Window implements
        Transformer<Vertexx,Paint> vertexColor = new Transformer<Vertexx,Paint>() {
             public Paint transform(Vertexx i) {
             	//try {
-	            	int[] tab = alg.population.get(0).chromosome.clone();
+	            	int[] tab = alg.population.get(0).chromosome;
 	        		if(tab[i.id] == 1) {
 	        			return Color.GREEN;
 	        		} else {
@@ -235,9 +235,9 @@ public class Window implements
      */
     public void propertyChange(PropertyChangeEvent evt) {
         if ("alg".equals(evt.getPropertyName()))   {
-            int generacja = (Integer) evt.getNewValue();
-            chart.series.add(generacja, alg.population.get(0).fit);
-            chart.series2.add(generacja, alg.population.get(4).fit);
+            int generacja = alg.gen;
+            chart.series.add(generacja, alg.population.getFirst().fit);
+            chart.series2.add(generacja, alg.population.getLast().fit);
             progressBar.setValue(alg.getProgress());
             textArea.append(String.format(
                     "Completed %d%% of task.\n", alg.getProgress()));
@@ -253,7 +253,7 @@ public class Window implements
 		final JFileChooser fc = new JFileChooser();
 		
 		frame = new JFrame(s2);
-		frame.setBounds(100, 100, 800, 670);
+		frame.setBounds(100, 100, 800, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		final JButton btnWskazPlik = new JButton(s3);
@@ -274,12 +274,13 @@ public class Window implements
 		frame.getContentPane().add(progressBar);
 		
 		scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(5, 500, 775, 125);
+		scrollPane_1.setBounds(5, 500, 775, 155);
 		frame.getContentPane().add(scrollPane_1);
 		
 		textArea = new JTextArea(5,20);
 		scrollPane_1.setViewportView(textArea);
 		textArea.setEditable(false);
+		//textArea.setVisible(false);
 		
 		panel_1 = new JPanel();
 		panel_1.setBounds(160, 10, 620, 455);
@@ -305,6 +306,7 @@ public class Window implements
 		        chart = new Chart();
 		        alg = new GenAlgorythm();
 		        alg.window = Window.this;
+		        alg.progressBar = progressBar;
 		        alg.frame = frame;
 		        alg.btnUruchom = btnUruchom;
 		        alg.addPropertyChangeListener(Window.this);
@@ -352,14 +354,16 @@ public class Window implements
 						}
 					}
 					if(comboBox.getSelectedItem() == "jednopunktowe") {
-						alg.setParams(pop, gen, mut, "Jednopunktowy", progressBar);
+						alg.setParams(pop, gen, mut, 0, progressBar);
 					} else if(comboBox.getSelectedItem() == "jednorodne") {
-						alg.setParams(pop, gen, mut, "Jednorodny", null);
+						alg.setParams(pop, gen, mut, 1, progressBar);
 					} else {
-						alg.setParams(pop, gen, mut, "Wazony", null);
+						alg.setParams(pop, gen, mut, 2, progressBar);
 					}
 					 alg.execute();
+					 
 					panel_1.removeAll();
+					//progressBar.setValue(100);
 					//displayGraph(610, 445, alg.getAdjMatrix(), alg.getPopulation(), false);
 					btnPowieksz.setEnabled(true);
 					btnZapisz.setEnabled(true);

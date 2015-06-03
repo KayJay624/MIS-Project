@@ -40,7 +40,7 @@ public class Chart {
 		 false // Configure chart to generate URLs?
 		 );
 		 ChartPanel cp = new ChartPanel(chart);
-		 JFrame frame = new JFrame("Graf");
+		 JFrame frame = new JFrame("Chart");
 	 	frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 	 	frame.setPreferredSize(new Dimension(800,500));
 	 	frame.add(cp); 

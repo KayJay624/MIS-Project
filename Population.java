@@ -3,15 +3,15 @@ package badania;
 import java.util.*;
 
 public class Population {
-	public LinkedList<Chromosome> population = new LinkedList<Chromosome>();
+	public ArrayList<Chromosome> population = new ArrayList<Chromosome>();
 	public int[][] adjMatrix;
 	
 	Population(int length, int chromNum,int[][] adj) {
 		for(int i = 0; i < length; i++) {
-			adjMatrix = adj.clone();
-			Chromosome newChrom = new Chromosome(chromNum);
+			adjMatrix = adj; //.clone();
+			Chromosome newChrom = new Chromosome(chromNum,adjMatrix);
 			newChrom.init();
-			newChrom.fitness(adjMatrix);
+			newChrom.fitness();
 			
 			population.add(newChrom);
 		}
@@ -22,12 +22,20 @@ public class Population {
 		return population.get(i);
 	}
 	
+	public Chromosome getLast() {
+		return population.get(population.size()-1);
+	}
+	
+	public Chromosome getFirst() {
+		return population.get(0);
+	}
+	
 	public void add(Chromosome newChrom) {
 		population.add(newChrom);
 	}
 
 	public void removeLast() {
-		population.removeLast();
+		population.remove(population.size()-1);
 	}
 	
 	public void sort() {
@@ -107,14 +115,14 @@ public class Population {
 		synchronized(this) {
 		String wynik = "Generacja: " + gen + "\n";
 		wynik += "nr   fitness   chromosom \n";
-		for(int j = 0 ; j < population.size(); j++) {
+		for(int j = 0 ; j < 4; j++) {
    		  	wynik += (j+1 + ".    " + population.get(j).fit + "          ");
 	    	  for(int i = 0; i < population.get(j).size(); i++) {
 	    		  wynik += ( population.get(j).get(i) + "  ");	  
 	    	  }
 	    	  wynik+="\n";
    	    }
-		wynik+="\n\n";
+		//wynik+="\n";
 		Window.displayMessage(wynik);
 		}
 	}

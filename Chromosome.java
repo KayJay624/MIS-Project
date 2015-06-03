@@ -1,14 +1,43 @@
 package badania;
+import java.util.Date;
 import java.util.Random;
 
+import org.jblas.*;
 public class Chromosome {
 	public int[] chromosome;
 	private int length = 0;
 	public int fit;
+	public int[][] adjMatrix;
+	public DoubleMatrix m;
+	public DoubleMatrix ch;
 	
-	Chromosome(int l) {
+	Chromosome(int l, int[][] adj) {
 		chromosome = new int[l];
 		this.length = l;
+		adjMatrix = adj; //.clone();
+		m = new DoubleMatrix(int2double(adjMatrix));
+	}
+	
+	public double[][] int2double(int[][] a) {
+		double[][] b = new double[a.length][a.length];
+		for(int i = 0; i < a.length; i++) {
+			for(int j = 0; j < a.length; j++){
+				b[i][j] = (double)a[i][j];
+			}
+		}
+		
+		return b;
+	}
+	
+	public double[] int1double(int[] a) {
+		double[] b = new double[a.length];
+		for(int i = 0; i < a.length; i++) {
+
+				b[i] = (double)a[i];
+
+		}
+		
+		return b;
 	}
 	
 	public void init() {
@@ -24,7 +53,7 @@ public class Chromosome {
 
 	public Chromosome crossover(Chromosome other) {
 		Random rand = new Random();
-		Chromosome newChrom = new Chromosome(length);
+		Chromosome newChrom = new Chromosome(length, adjMatrix);
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
@@ -39,7 +68,7 @@ public class Chromosome {
 	}
 	
 	public Chromosome jednopunktowyCrossover(Chromosome other) {
-		Chromosome newChrom = new Chromosome(length);
+		Chromosome newChrom = new Chromosome(length,adjMatrix);
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
@@ -52,7 +81,7 @@ public class Chromosome {
 	
 	public Chromosome jednorodnyCrossover(Chromosome other) {
 		Random rand = new Random();
-		Chromosome newChrom = new Chromosome(length);
+		Chromosome newChrom = new Chromosome(length,adjMatrix);
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
@@ -65,7 +94,7 @@ public class Chromosome {
 	
 	public Chromosome wazonyCrossover(Chromosome other) {
 		Random rand = new Random();
-		Chromosome newChrom = new Chromosome(length);
+		Chromosome newChrom = new Chromosome(length,adjMatrix);
 		 
 		for(int i = 0; i < this.length; i++) {
 			if(rand.nextDouble() <= (this.fit/(this.fit + other.fit))) {
@@ -79,7 +108,7 @@ public class Chromosome {
 	
 	public void mutate(double probability) {
 		Random rand = new Random();
-		if(rand.nextDouble() > probability) {
+		if(rand.nextDouble() >= probability/100) {
 			int a = rand.nextInt(this.length);
 			if(chromosome[a] == 1) {
 				chromosome[a] = 0;
@@ -88,13 +117,40 @@ public class Chromosome {
 			}			
 		}
 	}
-	
-	public void fitness(int [][] adjMatrix) {
-		int sum = chromSum();
-		int penalty = length * vectorXvector(multiply(this.chromosome, adjMatrix),this.chromosome);
-		//vectorXvector(vectorXmatrix(this.chromosome, adjMatrix), this.chromosome);
+	public static double g = 0;
+	public static int l = 0;
+	public void fitness() {
+		Date start_time, stop_time;
+		start_time = new Date();
+		ch = new DoubleMatrix(int1double(this.chromosome));
+		int sum = (int)ch.sum();
 		
+		//DoubleMatrix cht = ch.transpose();
+		//DoubleMatrix matrix = new DoubleMatrix(1,adjMatrix.length);
+		//try {
+		DoubleMatrix matrix = ((ch.transpose()).mmul(m)).mmul(ch);
+		//DoubleMatrix m2 = matrix.mmul(ch);
+		//boolean p = cht.multipliesWith(m);
+		//} catch(Exception e) {e.printStackTrace();}
+		//int pe = (int)p.toArray2()[0][0];
+		//System.out.println(String.valueOf(p));
+		//System.out.println(m.rows + "  " +m.columns);
+		//System.out.println(cht.rows + "  " + cht.columns);
+		//System.out.println(cht.columns + "  " + ch.columns);
+		//System.out.println(matrix.rows + "  " +matrix.columns);
+		//System.out.println(m2.rows + "  " +m2.columns);
+		//System.out.println(length *matrix.get(0,0));
+		 int penalty = length * (int)matrix.get(0,0);
+		 //int penalty = length * vectorXvector(multiply(this.chromosome, adjMatrix),this.chromosome);
+		//vectorXvector(vectorXmatrix(this.chromosome, adjMatrix), this.chromosome);
+		//System.out.println(penalty);
+		//System.out.println();
 		fit = sum - penalty;
+		stop_time = new Date();
+		double t = (stop_time.getTime() - start_time.getTime());
+		g+=t;
+		l++;
+		//System.out.println(g/l);
 	}
 	
 	public int size() {
