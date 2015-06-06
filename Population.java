@@ -17,7 +17,6 @@ public class Population {
 		}
 	}
 	
-	
 	public Chromosome get(int i) {
 		return population.get(i);
 	}
@@ -42,7 +41,7 @@ public class Population {
 		Collections.sort(population, new chromComp());
 	}
 	
-	public Chromosome[] getParents() {
+	public Chromosome[] getParentsTurniejowa1() {
 		Random rand = new Random();
 		Chromosome[] tabParents;
 		tabParents = new Chromosome[2];
@@ -74,7 +73,7 @@ public class Population {
 		return tabParents;
 	}
 	
-	public Chromosome[] getParentsTraditional() {
+	public Chromosome[] getParentsTurniejowa2() {
 		int size = this.population.size();
 		Random rand = new Random();
 		int groupAquantity = 0;
@@ -95,7 +94,7 @@ public class Population {
 				groupA.add(this.get(i));
 				continue;
 			}
-			if (rand.nextInt(1) == 0) {
+			else if (rand.nextInt(2) == 0) {
 				groupA.add(this.get(i));
 				groupAquantity++;
 			}
@@ -108,6 +107,18 @@ public class Population {
 		Collections.sort(groupB, new chromComp());
 		tabParents[0] = groupA.get(0);
 		tabParents[1] = groupB.get(0);
+		return tabParents;
+	}
+	
+	public Chromosome[] getParentsNajlepszyPlusLosowy() {
+		Chromosome[] tabParents;
+		int size = this.population.size();
+		this.sort();
+		tabParents = new Chromosome[2];
+		tabParents[0] = this.get(0); //najlepszy
+		Random rand = new Random();
+		int randomNum = rand.nextInt(size - 1) + 1;
+		tabParents[1] = this.get(randomNum); //losowy
 		return tabParents;
 	}
 	
