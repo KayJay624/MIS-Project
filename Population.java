@@ -4,12 +4,12 @@ import java.util.*;
 
 public class Population {
 	public ArrayList<Chromosome> population = new ArrayList<Chromosome>();
-	public int[][] adjMatrix;
+	//public int[][] adjMatrix;
 	
-	Population(int length, int chromNum,int[][] adj) {
+	Population(int length, int chromNum) {
 		for(int i = 0; i < length; i++) {
-			adjMatrix = adj; //.clone();
-			Chromosome newChrom = new Chromosome(chromNum,adjMatrix);
+			//adjMatrix = GenAlgorythm.adjMatrix; //.clone();
+			Chromosome newChrom = new Chromosome(chromNum);
 			newChrom.init();
 			newChrom.fitness();
 			

@@ -20,9 +20,10 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 	private int populationQuantity = 0;
 	private int barValue = 0;
 	private double stopCon = 0;
+	private double maxGen = 0;
 	private double mutationProbability = 0;
 	private int crossMethod = 0;
-	public int[][] adjMatrix;
+	public static int[][] adjMatrix;
 	public Population population;
 	JProgressBar progressBar = null;
 	private Date start_time, stop_time;
@@ -32,15 +33,22 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 	public Window window;
 	public JFrame frame;
 	
-	public void setParams(int _populationQuantity, double _stopCon, double _mutationProbability, int _crossMethod, JProgressBar _progressBar) {
+	public void setParams(int _populationQuantity, double _stopCon, double _maxGen, double _mutationProbability, int _crossMethod, JProgressBar _progressBar) {
 		populationQuantity = _populationQuantity;
 		stopCon = _stopCon;
+		maxGen = _maxGen;
 		mutationProbability = _mutationProbability;
 		crossMethod = _crossMethod;
 		progressBar = _progressBar;
 	}
 	
-	
+	private boolean cond() {
+		if(stopCon != -1){
+			return true;
+		} else {
+			return gen < maxGen; 
+		}
+	}
 	
 	@Override
     public Void doInBackground() {
@@ -49,7 +57,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
         setProgress(0);
         double val = stopCon*vertNum/100;
 		start_time = new Date();		
-		population = new Population(populationQuantity, vertNum, adjMatrix);
+		population = new Population(populationQuantity, vertNum);
 		population.sort();
 		
 		Random rand = new Random();
@@ -58,7 +66,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 		double sumaT = 0;
 		//public  int l = 0;
 		
-		while(true) {	
+		while(cond()) {	
 			//Date start_time1, stop_time1;
 			//start_time1 = new Date();
 			//Chromosome[] childTab = new Chromosome[childNumb];
@@ -99,26 +107,32 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 			gen++;
 			
 			firePropertyChange("alg",gen-1,gen);	
-			progress = (int) (100 * gen / (15* vertNum));
-			setProgress(Math.min(progress, 100));
+			
 			//if(vertNum < 200) {
 			try {
-					Thread.sleep(1);
+					Thread.sleep(0,1);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			//}
-			int kk = population.get(0).fit;
-			if (kk > k)	{
-				k = kk;
-				iterations = 0;
-			}
-			else {
-				iterations++;
-			}
-			if (iterations >= (stopCon * vertNum) || gen >= 15*vertNum) {
-				break;
+			if(stopCon != -1) {
+				progress = (int) (100 * gen / (15* vertNum));
+				setProgress(Math.min(progress, 100));
+				int kk = population.get(0).fit;
+				if (kk > k)	{
+					k = kk;
+					iterations = 0;
+				}
+				else {
+					iterations++;
+				}
+				if (iterations >= (stopCon * vertNum) || gen >= 15*vertNum) {
+					break;
+				}
+			} else {
+				progress = (int) (100 * gen / (maxGen));
+				setProgress(Math.min(progress, 100));
 			}
             Thread.yield();	
            // stop_time1 = new Date();
@@ -133,6 +147,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
      public void done() {
          
     	 progressBar.setValue(100);
+    	 population.print(gen);
          //btnUruchom.setEnabled(true);
 		 frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
          //taskOutput.append(population.print3(gen));

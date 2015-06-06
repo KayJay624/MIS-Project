@@ -7,15 +7,15 @@ public class Chromosome {
 	public int[] chromosome;
 	private int length = 0;
 	public int fit;
-	public int[][] adjMatrix;
+	//public int[][] adjMatrix;
 	public DoubleMatrix m;
 	public DoubleMatrix ch;
 	
-	Chromosome(int l, int[][] adj) {
+	Chromosome(int l) {
 		chromosome = new int[l];
 		this.length = l;
-		adjMatrix = adj; //.clone();
-		m = new DoubleMatrix(int2double(adjMatrix));
+		//adjMatrix = GenAlgorythm.adjMatrix; //.clone();
+		m = new DoubleMatrix(int2double(GenAlgorythm.adjMatrix));
 	}
 	
 	public double[][] int2double(int[][] a) {
@@ -53,7 +53,7 @@ public class Chromosome {
 
 	public Chromosome crossover(Chromosome other) {
 		Random rand = new Random();
-		Chromosome newChrom = new Chromosome(length, adjMatrix);
+		Chromosome newChrom = new Chromosome(length);
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
@@ -68,7 +68,7 @@ public class Chromosome {
 	}
 	
 	public Chromosome jednopunktowyCrossover(Chromosome other) {
-		Chromosome newChrom = new Chromosome(length,adjMatrix);
+		Chromosome newChrom = new Chromosome(length);
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
@@ -81,7 +81,7 @@ public class Chromosome {
 	
 	public Chromosome jednorodnyCrossover(Chromosome other) {
 		Random rand = new Random();
-		Chromosome newChrom = new Chromosome(length,adjMatrix);
+		Chromosome newChrom = new Chromosome(length);
 		newChrom.chromosome = this.chromosome.clone();
 		 
 		for(int i = 0; i < this.length; i++) {
@@ -94,7 +94,7 @@ public class Chromosome {
 	
 	public Chromosome wazonyCrossover(Chromosome other) {
 		Random rand = new Random();
-		Chromosome newChrom = new Chromosome(length,adjMatrix);
+		Chromosome newChrom = new Chromosome(length);
 		 
 		for(int i = 0; i < this.length; i++) {
 			if(rand.nextDouble() <= (this.fit/(this.fit + other.fit))) {
@@ -108,7 +108,7 @@ public class Chromosome {
 	
 	public void mutate(double probability) {
 		Random rand = new Random();
-		if(rand.nextDouble() >= probability/100) {
+		if(rand.nextDouble() >= probability) {
 			int a = rand.nextInt(this.length);
 			if(chromosome[a] == 1) {
 				chromosome[a] = 0;

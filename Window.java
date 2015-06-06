@@ -56,11 +56,11 @@ public class Window implements
 	JFrame frame;
 	static JTextArea textArea;
 	private JTextField popul;
-	private JTextField gener;
 	private JTextField mutat;
 	
 	int pop;
-	double gen;
+	double warSt;
+	double maxG;
 	double mut;
 	private JTextField wierz;
 	private JTextField kraw;
@@ -68,6 +68,9 @@ public class Window implements
 	String path;
 	JRadioButton rdbtnGenerujGraf;
 	JRadioButton rdbtnWczytajZPliku;
+	
+	JRadioButton rdbtnprint1;
+	JRadioButton rdbtnprint2;
 	
 	JPanel panel_1;
 	private JProgressBar progressBar;
@@ -94,6 +97,10 @@ public class Window implements
 
 	//---------------------------------------------------------
 	private Chart chart = new Chart();
+	private JTextField warStp;
+	private JTextField maxGen;
+	JRadioButton rdbtnWarStp;
+	JRadioButton rdbtnMaxGen;
 	
 	
 	public static void main(String[] args) {
@@ -239,10 +246,16 @@ public class Window implements
             chart.series.add(generacja, alg.population.getFirst().fit);
             chart.series2.add(generacja, alg.population.getLast().fit);
             progressBar.setValue(alg.getProgress());
-            textArea.append(String.format(
-                    "Completed %d%% of task.\n", alg.getProgress()));
+           // textArea.append(String.format(
+             //       "Completed %d%% of task.\n", alg.getProgress()));
             //textArea.append(alg.population.print3(generacja));
-            alg.population.print(generacja);
+            if(rdbtnprint1.isSelected()) {
+            	alg.population.print(generacja);
+            }
+            
+            if(alg.isDone()&&rdbtnprint2.isSelected()) {
+				alg.population.print(alg.gen);
+			}
         } 
     }
 	
@@ -253,7 +266,7 @@ public class Window implements
 		final JFileChooser fc = new JFileChooser();
 		
 		frame = new JFrame(s2);
-		frame.setBounds(100, 100, 800, 700);
+		frame.setBounds(100, 100, 955, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		final JButton btnWskazPlik = new JButton(s3);
@@ -274,7 +287,7 @@ public class Window implements
 		frame.getContentPane().add(progressBar);
 		
 		scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(5, 500, 775, 155);
+		scrollPane_1.setBounds(5, 500, 929, 155);
 		frame.getContentPane().add(scrollPane_1);
 		
 		textArea = new JTextArea(5,20);
@@ -299,6 +312,7 @@ public class Window implements
 		btnUruchom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
+				
 				btnUruchom.setEnabled(false);
 		        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		        //Instances of javax.swing.SwingWorker are not reusuable, so
@@ -317,7 +331,8 @@ public class Window implements
 					if(pop < 1) {
 						pop = 1;
 					}
-					gen = Double.parseDouble(gener.getText());
+					maxG = Double.parseDouble(maxGen.getText());
+					warSt = Double.parseDouble(warStp.getText());
 					mut = Double.parseDouble(mutat.getText());
 					if(mut < 0) {
 						mut = 0;
@@ -354,11 +369,24 @@ public class Window implements
 						}
 					}
 					if(comboBox.getSelectedItem() == "jednopunktowe") {
-						alg.setParams(pop, gen, mut, 0, progressBar);
+						if(rdbtnWarStp.isSelected()){
+							alg.setParams(pop, warSt, -1, mut, 0, progressBar);
+						} else {
+							alg.setParams(pop, -1, maxG, mut, 0, progressBar);
+						}
+						
 					} else if(comboBox.getSelectedItem() == "jednorodne") {
-						alg.setParams(pop, gen, mut, 1, progressBar);
+						if(rdbtnWarStp.isSelected()){
+							alg.setParams(pop, warSt, -1, mut, 0, progressBar);
+						} else {
+							alg.setParams(pop, -1, maxG, mut, 0, progressBar);
+						}
 					} else {
-						alg.setParams(pop, gen, mut, 2, progressBar);
+						if(rdbtnWarStp.isSelected()){
+							alg.setParams(pop, warSt, -1, mut, 0, progressBar);
+						} else {
+							alg.setParams(pop, -1, maxG, mut, 0, progressBar);
+						}
 					}
 					 alg.execute();
 					 
@@ -388,23 +416,13 @@ public class Window implements
 		lblLiczebnoPopulacji.setBounds(5, 5, 150, 15);
 		panel.add(lblLiczebnoPopulacji);
 		
-		JLabel lblLiczbaGeneracji = new JLabel("Warunek stopu");
-		lblLiczbaGeneracji.setBounds(5, 50, 150, 15);
-		panel.add(lblLiczbaGeneracji);
-		
-		gener = new JTextField();
-		gener.setText("5");
-		gener.setBounds(5, 65, 100, 20);
-		panel.add(gener);
-		gener.setColumns(10);
-		
 		JLabel lblMutacja = new JLabel("Mutacja");
-		lblMutacja.setBounds(5, 95, 150, 15);
+		lblMutacja.setBounds(5, 62, 150, 15);
 		panel.add(lblMutacja);
 		
 		mutat = new JTextField();
 		mutat.setText("0.1");
-		mutat.setBounds(5, 110, 100, 20);
+		mutat.setBounds(5, 77, 100, 20);
 		panel.add(mutat);
 		mutat.setColumns(10);
 		
@@ -423,7 +441,7 @@ public class Window implements
 				}
 			}
 		});
-		rdbtnGenerujGraf.setBounds(5, 135, 140, 20);
+		rdbtnGenerujGraf.setBounds(5, 121, 140, 20);
 		panel.add(rdbtnGenerujGraf);
 		
 		rdbtnWczytajZPliku = new JRadioButton("Wczytaj z pliku");
@@ -448,21 +466,21 @@ public class Window implements
 	    group.add(rdbtnWczytajZPliku);
 		
 		JLabel lblIlocWierzchokow = new JLabel(s6);
-		lblIlocWierzchokow.setBounds(15, 160, 150, 15);
+		lblIlocWierzchokow.setBounds(15, 146, 150, 15);
 		panel.add(lblIlocWierzchokow);
 		
 		wierz = new JTextField();
-		wierz.setBounds(15, 175, 90, 20);
+		wierz.setBounds(15, 161, 90, 20);
 		panel.add(wierz);
 		wierz.setColumns(10);
 		wierz.setEnabled(false);
 		
 		JLabel lblIloKrawdzi = new JLabel(s7);
-		lblIloKrawdzi.setBounds(15, 200, 134, 14);
+		lblIloKrawdzi.setBounds(15, 186, 134, 14);
 		panel.add(lblIloKrawdzi);
 		
 		kraw = new JTextField();
-		kraw.setBounds(15, 215, 90, 20);
+		kraw.setBounds(15, 201, 90, 20);
 		panel.add(kraw);
 		kraw.setColumns(10);
 		kraw.setEnabled(false);
@@ -508,5 +526,100 @@ public class Window implements
 			}
 		});
 		btnChart.setEnabled(false);	
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setLayout(null);
+		panel_2.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		panel_2.setBounds(784, 10, 150, 485);
+		frame.getContentPane().add(panel_2);
+		
+		JLabel label = new JLabel("Wy\u015Bwietlanie");
+		label.setBounds(5, 5, 150, 15);
+		panel_2.add(label);
+		
+		rdbtnprint1 = new JRadioButton("Wszystkie generacje");
+		rdbtnprint1.setBounds(5, 25, 140, 20);
+		rdbtnprint1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnprint1.isSelected()) {						
+					//rdbtnprint2.setEnabled(false);
+					rdbtnprint2.setSelected(false);
+				} 
+				else {
+					//rdbtnprint2.setEnabled(false);
+					rdbtnprint2.setSelected(true);
+				}
+			}
+		});
+		panel_2.add(rdbtnprint1);
+		
+		rdbtnprint2 = new JRadioButton("Tylko ostatnia");
+		rdbtnprint2.setBounds(5, 47, 140, 20);
+		rdbtnprint2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnprint2.isSelected()) {						
+					//rdbtnprint1.setEnabled(false);
+					rdbtnprint1.setSelected(false);
+					
+				} 
+				else {
+					//rdbtnprint1.setEnabled(false);
+					rdbtnprint1.setSelected(true);
+				}
+			}
+		});
+		panel_2.add(rdbtnprint2);
+		rdbtnprint2.setSelected(true);
+		
+		warStp = new JTextField();
+		warStp.setText("5");
+		warStp.setColumns(10);
+		warStp.setBounds(15, 115, 100, 20);
+		panel_2.add(warStp);
+		
+		rdbtnWarStp = new JRadioButton("Warunek stopu");
+		rdbtnWarStp.setBounds(5, 90, 109, 23);
+		rdbtnWarStp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnWarStp.isSelected()) {						
+					warStp.setEnabled(true);
+					maxGen.setEnabled(false);
+					rdbtnMaxGen.setSelected(false);
+				} 
+				else {
+					warStp.setEnabled(false);
+					maxGen.setEnabled(true);
+					rdbtnMaxGen.setSelected(true);
+				}
+			}
+		});
+		panel_2.add(rdbtnWarStp);
+		rdbtnWarStp.setSelected(true);
+		
+		
+		rdbtnMaxGen = new JRadioButton("Max generacji");
+		rdbtnMaxGen.setBounds(5, 142, 109, 23);
+		rdbtnMaxGen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnMaxGen.isSelected()) {						
+					warStp.setEnabled(false);
+					maxGen.setEnabled(true);
+					rdbtnWarStp.setSelected(false);
+				} 
+				else {
+					warStp.setEnabled(true);
+					maxGen.setEnabled(false);
+					rdbtnWarStp.setSelected(true);
+				}
+			}
+		});
+		panel_2.add(rdbtnMaxGen);
+		
+		maxGen = new JTextField();
+		maxGen.setText("5");
+		maxGen.setColumns(10);
+		maxGen.setBounds(15, 172, 100, 20);
+		panel_2.add(maxGen);
+		maxGen.setEnabled(false);
 	}
 }
