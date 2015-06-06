@@ -30,7 +30,7 @@ public class Chart {
 		 dataset.addSeries(series2);
 		 // Generate the graph
 		 JFreeChart chart = ChartFactory.createXYLineChart(
-		 "XY Chart", // Title
+		 "Zale¿noœæ miêdzy funkcj¹ fitness a liczb¹ generacji", // Title
 		 "Generacja", // x-axis Label
 		 "Wartoœæ funkcji fitness", // y-axis Label
 		 dataset, // Dataset

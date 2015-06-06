@@ -39,6 +39,7 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import javax.swing.JComboBox;
 import javax.swing.border.EtchedBorder;
+import java.awt.Font;
 
 public class Window implements 
 								PropertyChangeListener {
@@ -71,18 +72,18 @@ public class Window implements
 	private JButton btnUruchom; 
 	
 	//zeby latwiej bylo poprawiac wysypane polskie znaki
-	private final String s1 = "Macierz sÂ¹siedztwa";
-	private final String s2 = "Problem maksymalnego zbioru niezaleÂ¿nego";
-	private final String s3 = "WskaÂ¿ plik";
-	private final String s4 = "NaleÂ¿y wpisaÃ¦ liczby.";
+	private final String s1 = "Macierz s¹siedztwa";
+	private final String s2 = "Problem maksymalnego zbioru niezale¿nego";
+	private final String s3 = "Wska¿ plik";
+	private final String s4 = "Nale¿y wpisaæ liczby.";
 	private final String s5 = "Populacja";
-	private final String s6 = "L. wierzchoÂ³kÃ³w";
-	private final String s7 = "L. krawÃªdzi";
-	private final String s8 = "PowiÃªksz";
-	private final String s9 = "KrzyÂ¿owanie";
-	private final String s10 = "waÂ¿one";
-	private final String s11 = "<html>WyÅ›wietlanie<br>generacji</html>";
-	private final String s12 = "WyglÄ…d grafu";
+	private final String s6 = "L. wierzcho³ków";
+	private final String s7 = "L. krawêdzi";
+	private final String s8 = "Powiêksz";
+	private final String s9 = "Krzy¿owanie";
+	private final String s10 = "wa¿one";
+	private final String s11 = "<html>Wyœwietlanie<br>generacji</html>";
+	private final String s12 = "Wygl¹d grafu";
 
 	//---------------------------------------------------------
 	private Chart chart = new Chart();
@@ -149,7 +150,7 @@ public class Window implements
         };
 	
         Layout<Vertexx, Edgee> layout;
-        if(grafLayout.getSelectedItem().equals("KKLayout")) {
+        if(grafLayout.getSelectedItem().equals("ISOMLayout")) {
         	layout = new ISOMLayout<Vertexx, Edgee>(g); 
         } else if(grafLayout.getSelectedItem().equals("CircleLayout")) {
         	 layout = new CircleLayout<Vertexx, Edgee>(g);
@@ -284,9 +285,258 @@ public class Window implements
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
+		//------------- PANEL LEWY -------------------------------------------------------------------------------------------
+		
+		//generowanie grafu
+		rdbtnGenerujGraf = new JRadioButton("Generuj graf");
+		rdbtnGenerujGraf.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnGenerujGraf.isSelected()) {						
+					wierz.setEnabled(true);
+					kraw.setEnabled(true);
+					btnWskazPlik.setEnabled(false);
+					btnUruchom.setEnabled(true);
+				} 
+				else {
+					wierz.setEnabled(false);
+					kraw.setEnabled(false);
+				}
+			}
+		});
+		rdbtnGenerujGraf.setBounds(5, 21, 140, 20);
+		panel.add(rdbtnGenerujGraf);
+		
+		JLabel lblIlocWierzchokow = new JLabel(s6);
+		lblIlocWierzchokow.setBounds(15, 41, 150, 15);
+		panel.add(lblIlocWierzchokow);
+		
+		wierz = new JTextField();
+		wierz.setBounds(15, 56, 90, 20);
+		panel.add(wierz);
+		wierz.setColumns(10);
+		wierz.setEnabled(false);
+		
+		JLabel lblIloKrawdzi = new JLabel(s7);
+		lblIloKrawdzi.setBounds(15, 76, 134, 14);
+		panel.add(lblIloKrawdzi);
+		
+		kraw = new JTextField();
+		kraw.setBounds(15, 91, 90, 20);
+		panel.add(kraw);
+		kraw.setColumns(10);
+		kraw.setEnabled(false);
+		
+		//wczytanie grafu z pliku		
+		rdbtnWczytajZPliku = new JRadioButton("Wczytaj z pliku");
+		rdbtnWczytajZPliku.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnWczytajZPliku.isSelected()) {						
+					wierz.setEnabled(false);
+					kraw.setEnabled(false);
+					btnWskazPlik.setEnabled(true);
+					btnUruchom.setEnabled(true);
+				} 
+				else {		
+					btnWskazPlik.setEnabled(false);
+				}
+			}
+		});
+		rdbtnWczytajZPliku.setBounds(5, 116, 140, 20);
+		panel.add(rdbtnWczytajZPliku);
+		
+		btnWskazPlik = new JButton(s3);
+		btnWskazPlik.setBounds(17, 141, 110, 20);
+		btnWskazPlik.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chooseFileReturnVal = fc.showOpenDialog(frame);
+			}
+		});
+		panel.add(btnWskazPlik);
+		btnWskazPlik.setEnabled(false);
+		
+		//button group generowanie + wczytanie
+		ButtonGroup group1 = new ButtonGroup();
+	    group1.add(rdbtnGenerujGraf);
+	    group1.add(rdbtnWczytajZPliku);
+	    
+	    //populacja
+		JLabel lblLiczebnoPopulacji = new JLabel(s5);
+		lblLiczebnoPopulacji.setBounds(5, 168, 150, 15);
+		panel.add(lblLiczebnoPopulacji);
+		
+		popul = new JTextField();
+		popul.setText("5");
+		popul.setBounds(15, 186, 100, 20);
+		panel.add(popul);
+		popul.setColumns(10);
+		
+		//mutacja
+		JLabel lblMutacja = new JLabel("Mutacja");
+		lblMutacja.setBounds(5, 211, 150, 15);
+		panel.add(lblMutacja);
+		
+		mutat = new JTextField();
+		mutat.setText("0.1");
+		mutat.setBounds(15, 229, 100, 20);
+		panel.add(mutat);
+		mutat.setColumns(10);
+		
+		//krzyzowanie
+		JLabel lblNewLabel = new JLabel(s9);
+		lblNewLabel.setBounds(5, 271, 150, 15);
+		panel.add(lblNewLabel);
+		
+		comboBox = new JComboBox();
+		comboBox.setBounds(5, 286, 140, 20);
+		comboBox.addItem("jednopunktowe");
+		comboBox.addItem("jednorodne");
+		comboBox.addItem(s10);
+		panel.add(comboBox);
+		
+		//selekcja
+		JLabel selekcjaLabel = new JLabel("Selekcja");
+		selekcjaLabel.setBounds(5, 316, 150, 15);
+		panel.add(selekcjaLabel);
+		
+		selekcjaComboBox = new JComboBox();
+		selekcjaComboBox.setBounds(5, 331, 140, 20);
+		selekcjaComboBox.addItem("turniejowa 1");
+		selekcjaComboBox.addItem("turniejowa 2");
+		selekcjaComboBox.addItem("najlepszy + losowy");
+		panel.add(selekcjaComboBox);
+		
+		//warunek stopu
+		rdbtnWarStp = new JRadioButton("Warunek stopu");
+		rdbtnWarStp.setBounds(5, 375, 140, 23);
+		rdbtnWarStp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnWarStp.isSelected()) {						
+					warStp.setEnabled(true);
+					maxGen.setEnabled(false);
+					rdbtnMaxGen.setSelected(false);
+				} 
+				else {
+					warStp.setEnabled(false);
+					maxGen.setEnabled(true);
+					rdbtnMaxGen.setSelected(true);
+				}
+			}
+		});
+		panel.add(rdbtnWarStp);
+		rdbtnWarStp.setSelected(true);
+		
+		warStp = new JTextField();
+		warStp.setText("5");
+		warStp.setColumns(10);
+		warStp.setBounds(15, 400, 100, 20);
+		panel.add(warStp);
+		
+		//max generacji
+		rdbtnMaxGen = new JRadioButton("Max generacji");
+		rdbtnMaxGen.setBounds(5, 425, 140, 23);
+		rdbtnMaxGen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnMaxGen.isSelected()) {						
+					warStp.setEnabled(false);
+					maxGen.setEnabled(true);
+				} 
+				else {
+					warStp.setEnabled(true);
+					maxGen.setEnabled(false);
+				}
+			}
+		});
+		panel.add(rdbtnMaxGen);		
+		
+		maxGen = new JTextField();
+		maxGen.setText("5");
+		maxGen.setColumns(10);
+		maxGen.setBounds(15, 450, 100, 20);
+		panel.add(maxGen);
+		maxGen.setEnabled(false);
+		
+		//button group warunek stopu + max generacji
+		ButtonGroup group2 = new ButtonGroup();
+	    group2.add(rdbtnWarStp);
+	    group2.add(rdbtnMaxGen);
+	    
+	    //--------- PANEL PRAWY -----------------------------------------------------------------------------
+	    
+		//wyswietlanie
+		JLabel label = new JLabel(s11);
+		label.setBounds(5, 10, 150, 30);
+		panel_2.add(label);
+		
+		rdbtnprint1 = new JRadioButton("wszystkie");
+		rdbtnprint1.setBounds(5, 40, 140, 20);
+		rdbtnprint1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {						
+				rdbtnprint1.setSelected(true);
+				rdbtnprint2.setSelected(false);
+			}
+		});
+		panel_2.add(rdbtnprint1);
+		
+		rdbtnprint2 = new JRadioButton("tylko ostatnia");
+		rdbtnprint2.setBounds(5, 60, 140, 20);
+		rdbtnprint2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {						
+				rdbtnprint2.setSelected(true);
+				rdbtnprint1.setSelected(false);
+			}
+		});
+		panel_2.add(rdbtnprint2);
+		rdbtnprint2.setSelected(true);
+		
+	    //wyglad grafu
+		JLabel label_1 = new JLabel(s12);
+		label_1.setBounds(5, 80, 150, 35);
+		panel_2.add(label_1);
+		
+		grafLayout = new JComboBox();
+		grafLayout.setBounds(5, 110, 140, 20);
+		grafLayout.addItem("KKLayout");
+		grafLayout.addItem("CircleLayout");
+		grafLayout.addItem("ISOMLayout");
+		panel_2.add(grafLayout);
+		
+	    //wykres
+		btnChart = new JButton("Wykres");
+		btnChart.setBounds(5, 230, 130, 25);
+		panel_2.add(btnChart);
+		btnChart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chart.display();
+			}
+		});
+		btnChart.setEnabled(false);	
+		
+		//powieksz
+		btnPowieksz = new JButton(s8);
+		btnPowieksz.setBounds(5, 270, 130, 25);
+		panel_2.add(btnPowieksz);
+		btnPowieksz.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				displayGraph(2000, 2000, alg.getAdjMatrix(), alg.getPopulation(), true);
+			}
+		});
+		btnPowieksz.setEnabled(false);
+		
+		//zapisz
+		btnZapisz = new JButton("Zapisz");
+		btnZapisz.setBounds(5, 310, 130, 25);
+		panel_2.add(btnZapisz);
+		btnZapisz.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				writeToFile(alg.getAdjMatrix(), alg.getEdgeNum());
+			}
+		});
+		btnZapisz.setEnabled(false);	
+		
 		btnUruchom = new JButton("Uruchom");
-		btnUruchom.setBounds(5, 440, 140, 40);
-		panel.add(btnUruchom);
+		btnUruchom.setFont(new Font("Tahoma", Font.BOLD, 13));
+		btnUruchom.setBounds(5, 424, 140, 50);
+		panel_2.add(btnUruchom);
 		btnUruchom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -382,254 +632,6 @@ public class Window implements
 		});
 		
 		btnUruchom.setEnabled(false);
-		
-		//------------- PANEL LEWY -------------------------------------------------------------------------------------------
-		
-		//generowanie grafu
-		rdbtnGenerujGraf = new JRadioButton("Generuj graf");
-		rdbtnGenerujGraf.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(rdbtnGenerujGraf.isSelected()) {						
-					wierz.setEnabled(true);
-					kraw.setEnabled(true);
-					btnWskazPlik.setEnabled(false);
-					btnUruchom.setEnabled(true);
-				} 
-				else {
-					wierz.setEnabled(false);
-					kraw.setEnabled(false);
-				}
-			}
-		});
-		rdbtnGenerujGraf.setBounds(5, 5, 140, 20);
-		panel.add(rdbtnGenerujGraf);
-		
-		JLabel lblIlocWierzchokow = new JLabel(s6);
-		lblIlocWierzchokow.setBounds(15, 25, 150, 15);
-		panel.add(lblIlocWierzchokow);
-		
-		wierz = new JTextField();
-		wierz.setBounds(15, 40, 90, 20);
-		panel.add(wierz);
-		wierz.setColumns(10);
-		wierz.setEnabled(false);
-		
-		JLabel lblIloKrawdzi = new JLabel(s7);
-		lblIloKrawdzi.setBounds(15, 60, 134, 14);
-		panel.add(lblIloKrawdzi);
-		
-		kraw = new JTextField();
-		kraw.setBounds(15, 75, 90, 20);
-		panel.add(kraw);
-		kraw.setColumns(10);
-		kraw.setEnabled(false);
-		
-		//wczytanie grafu z pliku		
-		rdbtnWczytajZPliku = new JRadioButton("Wczytaj z pliku");
-		rdbtnWczytajZPliku.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(rdbtnWczytajZPliku.isSelected()) {						
-					wierz.setEnabled(false);
-					kraw.setEnabled(false);
-					btnWskazPlik.setEnabled(true);
-					btnUruchom.setEnabled(true);
-				} 
-				else {		
-					btnWskazPlik.setEnabled(false);
-				}
-			}
-		});
-		rdbtnWczytajZPliku.setBounds(5, 100, 140, 20);
-		panel.add(rdbtnWczytajZPliku);
-		
-		btnWskazPlik = new JButton(s3);
-		btnWskazPlik.setBounds(17, 125, 110, 20);
-		btnWskazPlik.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				chooseFileReturnVal = fc.showOpenDialog(frame);
-			}
-		});
-		panel.add(btnWskazPlik);
-		btnWskazPlik.setEnabled(false);
-		
-		//button group generowanie + wczytanie
-		ButtonGroup group1 = new ButtonGroup();
-	    group1.add(rdbtnGenerujGraf);
-	    group1.add(rdbtnWczytajZPliku);
-	    
-	    //populacja
-		JLabel lblLiczebnoPopulacji = new JLabel(s5);
-		lblLiczebnoPopulacji.setBounds(5, 157, 150, 15);
-		panel.add(lblLiczebnoPopulacji);
-		
-		popul = new JTextField();
-		popul.setText("5");
-		popul.setBounds(15, 175, 100, 20);
-		panel.add(popul);
-		popul.setColumns(10);
-		
-		//mutacja
-		JLabel lblMutacja = new JLabel("Mutacja");
-		lblMutacja.setBounds(5, 200, 150, 15);
-		panel.add(lblMutacja);
-		
-		mutat = new JTextField();
-		mutat.setText("0.1");
-		mutat.setBounds(15, 218, 100, 20);
-		panel.add(mutat);
-		mutat.setColumns(10);
-		
-		//krzyzowanie
-		JLabel lblNewLabel = new JLabel(s9);
-		lblNewLabel.setBounds(5, 245, 150, 15);
-		panel.add(lblNewLabel);
-		
-		comboBox = new JComboBox();
-		comboBox.setBounds(5, 260, 140, 20);
-		comboBox.addItem("jednopunktowe");
-		comboBox.addItem("jednorodne");
-		comboBox.addItem(s10);
-		panel.add(comboBox);
-		
-		//selekcja
-		JLabel selekcjaLabel = new JLabel("Selekcja");
-		selekcjaLabel.setBounds(5, 290, 150, 15);
-		panel.add(selekcjaLabel);
-		
-		selekcjaComboBox = new JComboBox();
-		selekcjaComboBox.setBounds(5, 305, 140, 20);
-		selekcjaComboBox.addItem("turniejowa 1");
-		selekcjaComboBox.addItem("turniejowa 2");
-		selekcjaComboBox.addItem("najlepszy + losowy");
-		panel.add(selekcjaComboBox);
-		
-		//warunek stopu
-		rdbtnWarStp = new JRadioButton("Warunek stopu");
-		rdbtnWarStp.setBounds(5, 335, 140, 23);
-		rdbtnWarStp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(rdbtnWarStp.isSelected()) {						
-					warStp.setEnabled(true);
-					maxGen.setEnabled(false);
-					rdbtnMaxGen.setSelected(false);
-				} 
-				else {
-					warStp.setEnabled(false);
-					maxGen.setEnabled(true);
-					rdbtnMaxGen.setSelected(true);
-				}
-			}
-		});
-		panel.add(rdbtnWarStp);
-		rdbtnWarStp.setSelected(true);
-		
-		warStp = new JTextField();
-		warStp.setText("5");
-		warStp.setColumns(10);
-		warStp.setBounds(15, 360, 100, 20);
-		panel.add(warStp);
-		
-		//max generacji
-		rdbtnMaxGen = new JRadioButton("Max generacji");
-		rdbtnMaxGen.setBounds(5, 385, 140, 23);
-		rdbtnMaxGen.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(rdbtnMaxGen.isSelected()) {						
-					warStp.setEnabled(false);
-					maxGen.setEnabled(true);
-				} 
-				else {
-					warStp.setEnabled(true);
-					maxGen.setEnabled(false);
-				}
-			}
-		});
-		panel.add(rdbtnMaxGen);		
-		
-		maxGen = new JTextField();
-		maxGen.setText("5");
-		maxGen.setColumns(10);
-		maxGen.setBounds(15, 410, 100, 20);
-		panel.add(maxGen);
-		maxGen.setEnabled(false);
-		
-		//button group warunek stopu + max generacji
-		ButtonGroup group2 = new ButtonGroup();
-	    group2.add(rdbtnWarStp);
-	    group2.add(rdbtnMaxGen);
-	    
-	    //--------- PANEL PRAWY -----------------------------------------------------------------------------
-	    
-		//wyswietlanie
-		JLabel label = new JLabel(s11);
-		label.setBounds(5, 10, 150, 30);
-		panel_2.add(label);
-		
-		rdbtnprint1 = new JRadioButton("wszystkie");
-		rdbtnprint1.setBounds(5, 40, 140, 20);
-		rdbtnprint1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {						
-				rdbtnprint1.setSelected(true);
-				rdbtnprint2.setSelected(false);
-			}
-		});
-		panel_2.add(rdbtnprint1);
-		
-		rdbtnprint2 = new JRadioButton("tylko ostatnia");
-		rdbtnprint2.setBounds(5, 60, 140, 20);
-		rdbtnprint2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {						
-				rdbtnprint2.setSelected(true);
-				rdbtnprint1.setSelected(false);
-			}
-		});
-		panel_2.add(rdbtnprint2);
-		rdbtnprint2.setSelected(true);
-		
-	    //wyglad grafu
-		JLabel label_1 = new JLabel(s12);
-		label_1.setBounds(5, 80, 150, 35);
-		panel_2.add(label_1);
-		
-		grafLayout = new JComboBox();
-		grafLayout.setBounds(5, 110, 140, 20);
-		grafLayout.addItem("KKLayout");
-		grafLayout.addItem("CircleLayout");
-		grafLayout.addItem("ISOMLayout");
-		panel_2.add(grafLayout);
-		
-	    //wykres
-		btnChart = new JButton("Wykres");
-		btnChart.setBounds(10, 400, 130, 20);
-		panel_2.add(btnChart);
-		btnChart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				chart.display();
-			}
-		});
-		btnChart.setEnabled(false);	
-		
-		//powieksz
-		btnPowieksz = new JButton(s8);
-		btnPowieksz.setBounds(10, 425, 130, 20);
-		panel_2.add(btnPowieksz);
-		btnPowieksz.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				displayGraph(2000, 2000, alg.getAdjMatrix(), alg.getPopulation(), true);
-			}
-		});
-		btnPowieksz.setEnabled(false);
-		
-		//zapisz
-		btnZapisz = new JButton("Zapisz");
-		btnZapisz.setBounds(10, 450, 130, 20);
-		panel_2.add(btnZapisz);
-		btnZapisz.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				writeToFile(alg.getAdjMatrix(), alg.getEdgeNum());
-			}
-		});
-		btnZapisz.setEnabled(false);	
 		
 
 	}

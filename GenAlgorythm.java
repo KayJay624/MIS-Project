@@ -117,7 +117,7 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 				if (iterations >= (stopCon * vertNum) || gen >= 15*vertNum) {
 					break;
 				}
-				System.out.println(iterations + "    iter");
+				//System.out.println(iterations + "    iter");
 			} 
 			else {
 				progress = (int) (100 * gen / (maxGen));
