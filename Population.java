@@ -106,7 +106,12 @@ public class Population {
 		Collections.sort(groupA, new chromComp());
 		Collections.sort(groupB, new chromComp());
 		tabParents[0] = groupA.get(0);
-		tabParents[1] = groupB.get(0);
+		if(!groupA.get(0).isSame(groupB.get(0))) {
+			tabParents[1] = groupB.get(0);
+		} else {
+			tabParents[1] = groupB.get(0);
+		}
+		
 		return tabParents;
 	}
 	
@@ -122,11 +127,34 @@ public class Population {
 		return tabParents;
 	}
 	
+	public Chromosome[] getParentsKoloRuletki() {
+		Chromosome[] tabParents = new Chromosome[2];;
+		int size = population.size();
+		LinkedList<Chromosome> koloR = new LinkedList<Chromosome>();
+		
+		
+		for(int i = 0; i < population.size(); i++) {
+			for(int j = 0; j < size; j++) {
+				koloR.add(population.get(i));
+			}
+			size--;
+		}
+		
+		Random rand = new Random();
+		int randomNum1 = rand.nextInt(koloR.size() - 1);
+		int randomNum2 = rand.nextInt(koloR.size() - 1);
+		
+		tabParents[0] = koloR.get(randomNum1);
+		tabParents[1] = koloR.get(randomNum2);
+		
+		return tabParents;
+	}
+	
 	public void print(int gen) {
 		synchronized(this) {
 		String wynik = "Generacja: " + gen + "\n";
 		wynik += "nr   fitness   chromosom \n";
-		for(int j = 0 ; j < 4; j++) {
+		for(int j = 0 ; j < population.size(); j++) {
    		  	wynik += (j+1 + ".    " + population.get(j).fit + "          ");
 	    	  for(int i = 0; i < population.get(j).size(); i++) {
 	    		  wynik += ( population.get(j).get(i) + "  ");	  

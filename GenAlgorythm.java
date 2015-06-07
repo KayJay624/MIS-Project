@@ -72,6 +72,11 @@ public class GenAlgorythm extends SwingWorker<Void, Void> {
 					tabParents = population.getParentsTurniejowa2();
 					population.sort();
 				}
+				
+				else if(selekcja.equals("ruletka")) {
+					tabParents = population.getParentsKoloRuletki();
+					population.sort();
+				}
 				else {
 					tabParents = population.getParentsNajlepszyPlusLosowy();
 					//sort niepotrzebny, bo juz jest w getParenstNajlepszyPlusLosowy()

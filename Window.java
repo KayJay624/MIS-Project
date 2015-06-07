@@ -401,6 +401,7 @@ public class Window implements
 		selekcjaComboBox = new JComboBox();
 		selekcjaComboBox.setBounds(5, 331, 140, 20);
 		selekcjaComboBox.addItem("turniejowa 1");
+		selekcjaComboBox.addItem("ruletka");
 		selekcjaComboBox.addItem("turniejowa 2");
 		selekcjaComboBox.addItem("najlepszy + losowy");
 		panel.add(selekcjaComboBox);
@@ -554,9 +555,11 @@ public class Window implements
 		       
 				try {
 					pop = Integer.parseInt(popul.getText());
-					if(pop < 1) {
-						pop = 1;
+					if(pop < 3) {
+						popul.setText("3");
+						pop = 3;
 					}
+					
 					maxG = Double.parseDouble(maxGen.getText());
 					warSt = Double.parseDouble(warStp.getText());
 					mut = Double.parseDouble(mutat.getText());
