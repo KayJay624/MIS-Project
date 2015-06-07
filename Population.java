@@ -46,29 +46,37 @@ public class Population {
 		Chromosome[] tabParents;
 		tabParents = new Chromosome[2];
 		int size = this.population.size();
-		LinkedList<Chromosome> groupA = new LinkedList<Chromosome>();
-		LinkedList<Chromosome> groupB = new LinkedList<Chromosome>();
-		for(int i = 0; i < size - 1; i++) {
-			if (rand.nextBoolean()) {
-				groupA.add(this.get(i));
+		int j = 0;
+		while(true) {
+			System.out.println("petla "+j);
+			LinkedList<Chromosome> groupA = new LinkedList<Chromosome>();
+			LinkedList<Chromosome> groupB = new LinkedList<Chromosome>();
+			for(int i = 0; i < size - 1; i++) {
+				if (rand.nextBoolean()) {
+					groupA.add(this.get(i));
+				}
+				else {
+					groupB.add(this.get(i));
+				}
+			}
+			Collections.sort(groupA, new chromComp());
+			Collections.sort(groupB, new chromComp());
+			if (groupA.isEmpty()) {
+				tabParents[0] = groupB.get(0);
+				tabParents[1] = groupB.get(1);
+			}
+			else if (groupB.isEmpty()) {
+				tabParents[0] = groupA.get(0);
+				tabParents[1] = groupA.get(1);
 			}
 			else {
-				groupB.add(this.get(i));
+				tabParents[0] = groupA.get(0);
+				tabParents[1] = groupB.get(0);
 			}
-		}
-		Collections.sort(groupA, new chromComp());
-		Collections.sort(groupB, new chromComp());
-		if (groupA.isEmpty()) {
-			tabParents[0] = groupB.get(0);
-			tabParents[1] = groupB.get(1);
-		}
-		else if (groupB.isEmpty()) {
-			tabParents[0] = groupA.get(0);
-			tabParents[1] = groupA.get(1);
-		}
-		else {
-			tabParents[0] = groupA.get(0);
-			tabParents[1] = groupB.get(0);
+			if (!tabParents[0].isSame(tabParents[1])) {
+				break;
+			}
+			j++;
 		}
 		return tabParents;
 	}
@@ -76,37 +84,42 @@ public class Population {
 	public Chromosome[] getParentsTurniejowa2() {
 		int size = this.population.size();
 		Random rand = new Random();
-		int groupAquantity = 0;
-		int groupBquantity = 0;
 		int maximalQuantity = size/2;
 		Chromosome[] tabParents;
 		tabParents = new Chromosome[2];
-		LinkedList<Chromosome> groupA = new LinkedList<Chromosome>();
-		LinkedList<Chromosome> groupB = new LinkedList<Chromosome>();
-		for(int i = 0; i < size - 1; i++) {
-			if (groupAquantity == maximalQuantity)
-			{
-				groupB.add(this.get(i));
-				continue;
+		while(true) {
+			int groupAquantity = 0;
+			int groupBquantity = 0;
+			LinkedList<Chromosome> groupA = new LinkedList<Chromosome>();
+			LinkedList<Chromosome> groupB = new LinkedList<Chromosome>();
+			for(int i = 0; i < size - 1; i++) {
+				if (groupAquantity == maximalQuantity)
+				{
+					groupB.add(this.get(i));
+					continue;
+				}
+				else if (groupBquantity == maximalQuantity)
+				{
+					groupA.add(this.get(i));
+					continue;
+				}
+				else if (rand.nextInt(2) == 0) {
+					groupA.add(this.get(i));
+					groupAquantity++;
+				}
+				else {
+					groupB.add(this.get(i));
+					groupBquantity++;
+				}
 			}
-			else if (groupBquantity == maximalQuantity)
-			{
-				groupA.add(this.get(i));
-				continue;
-			}
-			else if (rand.nextInt(2) == 0) {
-				groupA.add(this.get(i));
-				groupAquantity++;
-			}
-			else {
-				groupB.add(this.get(i));
-				groupBquantity++;
+			Collections.sort(groupA, new chromComp());
+			Collections.sort(groupB, new chromComp());
+			tabParents[0] = groupA.get(0);
+			tabParents[1] = groupB.get(0);
+			if (!tabParents[0].isSame(tabParents[1])) {
+				break;
 			}
 		}
-		Collections.sort(groupA, new chromComp());
-		Collections.sort(groupB, new chromComp());
-		tabParents[0] = groupA.get(0);
-		tabParents[1] = groupB.get(0);
 		return tabParents;
 	}
 	
@@ -117,8 +130,13 @@ public class Population {
 		tabParents = new Chromosome[2];
 		tabParents[0] = this.get(0); //najlepszy
 		Random rand = new Random();
-		int randomNum = rand.nextInt(size - 1) + 1;
-		tabParents[1] = this.get(randomNum); //losowy
+		while (true) {
+			int randomNum = rand.nextInt(size - 1) + 1;
+			tabParents[1] = this.get(randomNum); //losowy
+			if (!tabParents[0].isSame(tabParents[1])) {
+				break;
+			}
+		}
 		return tabParents;
 	}
 	
